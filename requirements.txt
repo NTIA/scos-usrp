@@ -1,0 +1,1 @@
+scos_actions @ git+${DOCKER_GIT_CREDENTIALS}/NTIA/scos_actions@initial_development#egg=scos_actions
