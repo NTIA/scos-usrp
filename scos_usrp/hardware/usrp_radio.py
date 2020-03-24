@@ -93,7 +93,7 @@ class USRPRadio(RadioInterface):
         if self._is_available:
             return True
 
-        if settings.RUNNING_TESTS:
+        if settings.RUNNING_TESTS or settings.MOCK_RADIO:
             logger.warning("Using mock USRP.")
             #random = settings.MOCK_RADIO_RANDOM
             random = False
@@ -137,7 +137,7 @@ class USRPRadio(RadioInterface):
         self.sigan_calibration_data = DEFAULT_SIGAN_CALIBRATION.copy()
 
         # Try and load sensor/sigan calibration data
-        if not settings.RUNNING_TESTS:
+        if not settings.RUNNING_TESTS and not settings.MOCK_RADIO:
             try:
                 self.sensor_calibration = calibration.load_from_json(sensor_cal_file)
             except Exception as err:
@@ -345,7 +345,7 @@ class USRPRadio(RadioInterface):
         max_retries = retries
         while True:
             # No need to skip initial samples when simulating the radio
-            if settings.RUNNING_TESTS:
+            if settings.RUNNING_TESTS or settings.MOCK_RADIO:
                 nsamps = num_samples
             else:
                 nsamps = num_samples + num_samples_skip

@@ -32,3 +32,12 @@ else:
 
 __cmd = path.split(sys.argv[0])[-1]
 RUNNING_TESTS = "test" in __cmd
+
+if not settings.configured or not hasattr(settings, 'MOCK_RADIO'):
+    MOCK_RADIO = RUNNING_TESTS
+else:
+    MOCK_RADIO = settings.MOCK_RADIO
+if not settings.configured or not hasattr(settings, 'MOCK_RADIO_RANDOM'):
+    MOCK_RADIO_RANDOM = False
+else:
+    MOCK_RADIO_RANDOM = settings.MOCK_RADIO_RANDOM
