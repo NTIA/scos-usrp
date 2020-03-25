@@ -9,7 +9,7 @@ SCOS_ACTIONS_REPO_ROOT = path.dirname(SCOS_ACTIONS_BASE_DIR)
 SCOS_ACTIONS_CONFIG_DIR = path.join(SCOS_ACTIONS_REPO_ROOT, "configs")
 
 CONFIG_DIR = path.join(path.dirname(path.abspath(__file__)), "configs")
-ACTION_DEFINITIONS_DIR = path.join(CONFIG_DIR, "/actions")
+ACTION_DEFINITIONS_DIR = path.join(CONFIG_DIR, "actions")
 
 # APP_ROOT = os.environ["APP_ROOT"]
 # if not APP_ROOT:
