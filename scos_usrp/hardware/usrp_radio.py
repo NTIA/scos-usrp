@@ -15,13 +15,14 @@ import logging
 from datetime import datetime
 
 import numpy as np
-#from hardware.radio_iface import RadioInterface
+
+# from hardware.radio_iface import RadioInterface
+from scos_actions import utils
 from scos_actions.hardware.radio_iface import RadioInterface
 
 from scos_usrp import settings
-from scos_usrp.hardware.mocks.usrp_block import MockUsrp
-
 from scos_usrp.hardware import calibration
+from scos_usrp.hardware.mocks.usrp_block import MockUsrp
 from scos_usrp.hardware.tests.resources.utils import create_dummy_calibration
 
 logger = logging.getLogger(__name__)
@@ -38,7 +39,6 @@ DEFAULT_SIGAN_CALIBRATION = {
     "1db_compression_sigan": 100,
 }
 
-
 DEFAULT_SENSOR_CALIBRATION = {
     "gain_sensor": None,  # Defaults to sigan gain
     "enbw_sensor": None,  # Defaults to sigan enbw
@@ -51,6 +51,13 @@ DEFAULT_SENSOR_CALIBRATION = {
 
 
 class USRPRadio(RadioInterface):
+    @property
+    def last_calibration_time(self):
+        if self.sensor_calibration:
+            return utils.convert_string_to_millisecond_iso_format(
+                self.sensor_calibration.calibration_datetime
+            )
+        return None
 
     @property
     def overload(self):
@@ -95,7 +102,7 @@ class USRPRadio(RadioInterface):
 
         if settings.RUNNING_TESTS or settings.MOCK_RADIO:
             logger.warning("Using mock USRP.")
-            #random = settings.MOCK_RADIO_RANDOM
+            # random = settings.MOCK_RADIO_RANDOM
             random = False
             self.usrp = MockUsrp(randomize_values=random)
             self._is_available = True
@@ -153,7 +160,7 @@ class USRPRadio(RadioInterface):
                 logger.exception(err)
                 self.sigan_calibration = None
         else:  # If in testing, create our own test files
-            #from scos_usrp import hardware as test_utils
+            # from scos_usrp import hardware as test_utils
 
             dummy_calibration = create_dummy_calibration()
             self.sensor_calibration = dummy_calibration
@@ -313,19 +320,17 @@ class USRPRadio(RadioInterface):
         pass
 
     def check_sensor_overload(self, data):
-        measured_data = data.astype(
-            np.complex64
-        )
+        measured_data = data.astype(np.complex64)
         time_domain_avg_power = 10 * np.log10(np.mean(np.abs(measured_data) ** 2))
         time_domain_avg_power += (
-                10 * np.log10(1 / (2 * 50)) + 30
+            10 * np.log10(1 / (2 * 50)) + 30
         )  # Convert log(V^2) to dBm
         self._sensor_overload = False
         # explicitly check is not None since 1db compression could be 0
         if self.sensor_calibration_data["1db_compression_sensor"] is not None:
             self._sensor_overload = (
-                    time_domain_avg_power
-                    > self.sensor_calibration_data["1db_compression_sensor"]
+                time_domain_avg_power
+                > self.sensor_calibration_data["1db_compression_sensor"]
             )
 
     def acquire_time_domain_samples(

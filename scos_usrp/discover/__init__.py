@@ -9,7 +9,6 @@ from scos_usrp.settings import ACTION_DEFINITIONS_DIR
 
 logger = logging.getLogger(__name__)
 
-
 actions = {
     "monitor_usrp": RadioMonitor(radio),
     "sync_gps": SyncGps(gps),

@@ -7,7 +7,6 @@ from time import sleep, time
 
 from scos_actions.hardware.gps_iface import GPSInterface
 
-
 logger = logging.getLogger(__name__)
 
 
