@@ -355,7 +355,7 @@ class USRPRadio(RadioInterface):
             else:
                 nsamps = num_samples + num_samples_skip
 
-            self._capture_time = datetime.utcnow()
+            self._capture_time = utils.get_datetime_str_now()
             samples = self.usrp.recv_num_samps(
                 nsamps,  # number of samples
                 self.frequency,  # center frequency in Hz
