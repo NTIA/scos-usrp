@@ -12,7 +12,8 @@ Example usage:
 """
 
 import logging
-from datetime import datetime
+import time
+from datetime import datetime, timedelta
 
 import numpy as np
 
@@ -30,6 +31,8 @@ logger = logging.getLogger(__name__)
 # Testing determined these gain values provide a good mix of sensitivity and
 # dynamic range performance
 VALID_GAINS = (0, 20, 40, 60)
+
+CLOCK_TIMEOUT = 1000  # 1000mS timeout for external clock locking
 
 # Define the default calibration dicts
 DEFAULT_SIGAN_CALIBRATION = {
@@ -370,7 +373,7 @@ class USRPRadio(RadioInterface):
             data = samples[0]  # isolate data for channel 0
             data_len = len(data)
 
-            if not settings.RUNNING_TESTS:
+            if not settings.RUNNING_TESTS and not settings.MOCK_RADIO:
                 data = data[num_samples_skip:]
 
             if not len(data) == num_samples:
@@ -394,6 +397,142 @@ class USRPRadio(RadioInterface):
                 q_over_threshold = np.sum(q_samples > self.ADC_FULL_RANGE_THRESHOLD)
                 total_over_threshold = i_over_threshold + q_over_threshold
                 ratio_over_threshold = float(total_over_threshold) / num_samples
+                if ratio_over_threshold > self.ADC_OVERLOAD_THRESHOLD:
+                    self._sigan_overload = True
+
+                # Scale the data back to RF power and return it
+                data /= linear_gain
+                return data
+
+    def acquire_gps_samples(self, n, arg_start_time_goal, retries=5):  # -> np.ndarray:
+        """Aquire n samples and return the last n"""
+        self._sigan_overload = False
+        self._capture_time = None
+
+        # Get the calibration data for the acquisition
+        self.recompute_calibration_data()
+
+        # Compute the linear gain
+        db_gain = self.sensor_calibration_data["gain_sensor"]
+        linear_gain = 10 ** (db_gain / 20.0)
+
+        # Try to acquire the samples
+        max_retries = retries
+        while True:
+            ## no skipping samples with gps sync 
+            num_requested_samples = int(n)
+
+            ## ^^^ acquire_samples() also hardcoded as a single channel 0 ^^^
+            channel = 0 
+            self.usrp.set_clock_source("gpsdo", 0)
+            self.usrp.set_time_source("gpsdo", 0)
+            self.usrp.set_rx_rate(self.sample_rate, channel)
+            self.usrp.set_rx_freq(self.uhd.types.TuneRequest(self.frequency), channel)
+            self.usrp.set_rx_gain(self.gain, channel)
+            #self.usrp.set_rx_bandwidth(14e6)
+
+            ## sleep for a second after setup
+            time.sleep(1)
+
+            ## check lock on gps  
+            end_time = datetime.now() + timedelta(milliseconds=CLOCK_TIMEOUT)
+            gps_locked = self.usrp.get_mboard_sensor("gps_locked", 0)
+            while (not gps_locked) and (datetime.now() < end_time):
+                time.sleep(1e-3)
+                gps_locked = self.usrp.get_mboard_sensor("gps_locked", 0)
+            if not gps_locked:
+                print("unable to confirm gps locked")
+                return False
+            print("able to confirm GPS LOCKED")
+            ## set time to gps time
+            gps_time = self.uhd.types.TimeSpec(self.usrp.get_mboard_sensor("gps_time", 0).to_int() + 1)
+            self.usrp.set_time_next_pps(gps_time)
+
+            ## sleep after setting GPS time
+            time.sleep(2)
+
+            samples = np.empty((1, num_requested_samples), dtype=np.complex64)
+    
+            stream_args = self.uhd.usrp.StreamArgs("fc32", "sc16") ## chose these from the example in https://files.ettus.com/manual/page_converters.html
+            stream_args.channels = (0,) ## Note if youre doing mimo this will change e.g., [0,1] 
+            md = self.uhd.types.RXMetadata()
+            rx_stream = self.usrp.get_rx_stream(stream_args)
+            samps_per_buff = rx_stream.get_max_num_samps() ## 2040
+
+            ## set start time
+            start_time_goal = self.uhd.types.TimeSpec(arg_start_time_goal)
+            ## prime the stream command
+            stream_cmd = self.uhd.types.StreamCMD(self.uhd.types.StreamMode.start_cont)
+            stream_cmd.stream_now = False
+            stream_cmd.time_spec = start_time_goal
+
+            ## wait until within 0.1 secs of start_time_goal
+            while True:
+                time.sleep(0.01)
+                time_check = self.usrp.get_time_last_pps(0) ## 0 is mboard number (i believe)
+                if time_check.get_real_secs() >= start_time_goal.get_real_secs() - 1:
+                    time.sleep(0.9)
+                    break
+                #print("current time is    %f" % time_check.get_real_secs())
+            
+            self._capture_time = datetime.utcnow() 
+            ## issue stream command
+            rx_stream.issue_stream_cmd(stream_cmd)
+
+            ## start receiving
+            num_received_samples = 0
+            while num_received_samples < num_requested_samples:
+                ## recv() has a default timeout of 0.1 seconds, with no apparent way to change
+                num_rx_samps = rx_stream.recv(samples[:,num_received_samples:num_received_samples+samps_per_buff], md)
+                if md.error_code != self.uhd.types.RXMetadataErrorCode.none:
+                    print(md.strerror())
+                    if md.error_code == 1:
+                        err = "ERROR_CODE_TIMEOUT occured. Time between issue_stream_cmd() and recv() was longer than 0.1 seconds."
+                        raise RuntimeError(err)
+                    elif md.error_code == 2:
+                        err = "ERROR_CODE_LATE_COMMAND occured. GPS start time already passed."
+                        raise RuntimeError(err)
+                
+                num_received_samples += num_rx_samps
+
+            ## clean up
+            stream_cmd = self.uhd.types.StreamCMD(self.uhd.types.StreamMode.stop_cont)
+            rx_stream.issue_stream_cmd(stream_cmd)
+
+            recv_buffer = np.zeros((1, samps_per_buff), dtype=np.complex64)
+            samps = 1
+            while samps:
+                samps = rx_stream.recv(recv_buffer, md)
+                
+            rx_stream = None
+
+            assert samples.dtype == np.complex64
+            assert len(samples.shape) == 2 and samples.shape[0] == 1
+            data = samples[0]  # isolate data for channel 0
+            data_len = len(data)
+
+
+            if not len(data) == n:
+                if retries > 0:
+                    msg = "USRP error: requested {} samples, but got {}."
+                    logger.warning(msg.format(n, data_len))
+                    logger.warning("Retrying {} more times.".format(retries))
+                    retries = retries - 1
+                else:
+                    err = "Failed to acquire correct number of samples "
+                    err += "{} times in a row.".format(max_retries)
+                    raise RuntimeError(err)
+            else:
+                logger.debug("Successfully acquired {} samples.".format(n))
+
+                # Check IQ values versus ADC max for sigan compression
+                self._sigan_overload = False
+                i_samples = np.abs(np.real(data))
+                q_samples = np.abs(np.imag(data))
+                i_over_threshold = np.sum(i_samples > self.ADC_FULL_RANGE_THRESHOLD)
+                q_over_threshold = np.sum(q_samples > self.ADC_FULL_RANGE_THRESHOLD)
+                total_over_threshold = i_over_threshold + q_over_threshold
+                ratio_over_threshold = float(total_over_threshold) / n
                 if ratio_over_threshold > self.ADC_OVERLOAD_THRESHOLD:
                     self._sigan_overload = True
 
