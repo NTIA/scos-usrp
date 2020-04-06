@@ -10,8 +10,9 @@ requirements_path = repo_root + '/requirements.txt'
 install_requires = []  # Examples: ["gunicorn", "docutils>=0.3", "lxml==0.5a7"]
 if os.path.isfile(requirements_path):
     with open(requirements_path) as f:
-        install_requires = f.read().splitlines()
-print("install_requires = " + str(install_requires))
+        lines = f.read().splitlines()
+        for line in lines:
+            install_requires.append(os.path.expandvars(line))
 
 setuptools.setup(
     name="scos_usrp",
@@ -29,6 +30,6 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     python_requires='>=3.6',
-    #install_requires=install_requires,
+    install_requires=install_requires,
     package_data={'scos_usrp': ['configs/*.json', 'configs/actions/*.yml']},
 )
