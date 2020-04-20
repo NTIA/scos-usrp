@@ -1,6 +1,13 @@
 # scos_usrp
 USRP support for scos-sensor
 
+Requires pip>=18.1 (upgrade using python3 -m pip install --upgrade pip)
+
+ This repository includes many 700MHz band actions in [scos_usrp/configs/actions](scos_usrp/configs/actions). Uses
+ actions, RadioInterface, GPSInterface, and signals from [scos_actions](https://github.com/ntia/scos_actions).
+
+For information on adding actions, see the [scos_actions documentation](https://github.com/ntia/scos_actions).
+
 This plugin requires the UHD drivers to be installed. The easiest way to install the drivers is to use an existing
 docker image as the base image. The default base image in scos-sensor has the UHD drivers. However, it requires
 [authentication to GitHub packages](https://help.github.com/en/packages/using-github-packages-with-your-projects-ecosystem/configuring-docker-for-use-with-github-packages#authenticating-to-github-packages)
