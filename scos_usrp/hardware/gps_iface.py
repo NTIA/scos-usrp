@@ -88,6 +88,7 @@ class USRPLocation(GPSInterface):
 
         try:
             gpgga = usrp.get_mboard_sensor("gps_gpgga").value
+            logger.debug("gpgga = " + str(gpgga))
             (
                 fmt,
                 utc,
