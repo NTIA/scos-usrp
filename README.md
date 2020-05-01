@@ -23,7 +23,7 @@ First set `DOCKER_GIT_CREDENTIALS` by running
 or by running
 `export DOCKER_GIT_CREDENTIALS=https://<username>:<password>@github.com` replacing \<username\> with your GitHub username
 and \<password\> with your GitHub password.
-Docker is used to run the unit tests since it uses a container with the USRP UHD drivers installed.
+Since the UHD drivers are required for testing, the tests are run inside a container with the UHD drivers.
 ```base
 docker build -f docker/Dockerfile-test -t usrp_test --build-arg DOCKER_GIT_CREDENTIALS .
 docker run usrp_test
