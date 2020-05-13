@@ -31,5 +31,5 @@ setuptools.setup(
     ],
     python_requires=">=3.6",
     install_requires=install_requires,
-    package_data={"scos_usrp": ["configs/*.json", "configs/actions/*.yml"]},
+    package_data={"scos_usrp": ["configs/*.example", "configs/actions/*.yml"]},
 )
