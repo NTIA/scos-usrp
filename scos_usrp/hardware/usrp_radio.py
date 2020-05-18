@@ -436,14 +436,23 @@ class USRPRadio(RadioInterface):
 
             ## check lock on gps  
             end_time = datetime.now() + timedelta(milliseconds=CLOCK_TIMEOUT)
-            gps_locked = self.usrp.get_mboard_sensor("gps_locked", 0)
-            while (not gps_locked) and (datetime.now() < end_time):
+            ref_locked = self.usrp.get_mboard_sensor("ref_locked", 0).to_bool()
+            logger.debug("Waiting for reference lock.")
+            while (not ref_locked) and (datetime.now() < end_time):
                 time.sleep(1e-3)
-                gps_locked = self.usrp.get_mboard_sensor("gps_locked", 0)
-            if not gps_locked:
-                print("unable to confirm gps locked")
+                ref_locked = self.usrp.get_mboard_sensor("ref_locked", 0).to_bool()
+            if not ref_locked:
+                logger.error("No reference lock.")
                 return False
-            print("able to confirm GPS LOCKED")
+            logger.debug("Reference locked.")
+            logger.debug("Check GPS locked.")
+            gps_locked = self.usrp.get_mboard_sensor("gps_locked", 0).to_bool()
+            if gps_locked:
+                logger.debug("GPS Locked")
+            else:
+                logger.error("GPS not locked")
+                return False
+
             ## set time to gps time
             gps_time = self.uhd.types.TimeSpec(self.usrp.get_mboard_sensor("gps_time", 0).to_int() + 1)
             self.usrp.set_time_next_pps(gps_time)
