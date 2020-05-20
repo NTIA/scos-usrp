@@ -1,0 +1,4 @@
+-rrequirements.txt
+
+pytest==5.4.1
+black==19.10b0
