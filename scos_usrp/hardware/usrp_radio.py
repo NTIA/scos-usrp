@@ -243,6 +243,13 @@ class USRPRadio(RadioInterface):
     def recompute_calibration_data(self):
         """Set the calibration data based on the currently tuning"""
 
+        # Debug output sensor calibration dict
+        if self.sensor_calibration is not None:
+            import json
+            logger.debug("Sensor calibration data: ".format(json.dumps(self.sensor_calibration.calibration_data)))
+        else:
+            logger.debug("No loaded sensor calibration data")
+
         # Try and get the sensor calibration data
         self.sensor_calibration_data = DEFAULT_SENSOR_CALIBRATION.copy()
         if self.sensor_calibration is not None:
