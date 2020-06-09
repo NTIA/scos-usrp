@@ -246,7 +246,7 @@ class USRPRadio(RadioInterface):
         # Debug output sensor calibration dict
         if self.sensor_calibration is not None:
             import json
-            logger.debug("Sensor calibration data: ".format(json.dumps(self.sensor_calibration.calibration_data)))
+            logger.debug("Sensor calibration data: {}".format(json.dumps(self.sensor_calibration.calibration_data)))
         else:
             logger.debug("No loaded sensor calibration data")
 
