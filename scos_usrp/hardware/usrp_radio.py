@@ -290,19 +290,6 @@ class USRPRadio(RadioInterface):
                 + self.sigan_calibration_data["1db_compression_sigan"]
             )
 
-        # Debug output sensor calibration dict
-        import json
-        if self.sigan_calibration is not None:
-            logger.warning("Sigan calibration data: {}".format(json.dumps(self.sigan_calibration.calibration_data)))
-        else:
-            logger.warning("No loaded sigan calibration data")
-        if self.sensor_calibration is not None:
-            logger.warning("Sensor calibration data: {}".format(json.dumps(self.sensor_calibration.calibration_data)))
-        else:
-            logger.warning("No loaded sensor calibration data")
-        logger.warning("Sigan calibration point: {}".format(json.dumps(self.sigan_calibration_data)))
-        logger.warning("Sensor calibration point: {}".format(json.dumps(self.sensor_calibration_data)))
-
     def create_calibration_annotation(self):
         annotation_md = {
             "ntia-core:annotation_type": "CalibrationAnnotation",
