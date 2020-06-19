@@ -51,6 +51,7 @@ DEFAULT_SENSOR_CALIBRATION = {
 
 
 class USRPRadio(RadioInterface):
+
     @property
     def last_calibration_time(self):
         if self.sensor_calibration:
@@ -399,4 +400,5 @@ class USRPRadio(RadioInterface):
 
                 # Scale the data back to RF power and return it
                 data /= linear_gain
+                self.check_sensor_overload(data)
                 return data
