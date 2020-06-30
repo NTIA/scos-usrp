@@ -244,6 +244,7 @@ class USRPRadio(RadioInterface):
         """Set the calibration data based on the currently tuning"""
 
         # Try and get the sensor calibration data
+        self.sensor_calibration_data = DEFAULT_SENSOR_CALIBRATION.copy()
         if self.sensor_calibration is not None:
             self.sensor_calibration_data.update(
                 self.sensor_calibration.get_calibration_dict(
@@ -252,10 +253,9 @@ class USRPRadio(RadioInterface):
                     gain=self.gain,
                 )
             )
-        else:
-            self.sensor_calibration_data = DEFAULT_SENSOR_CALIBRATION.copy()
 
         # Try and get the sigan calibration data
+        self.sigan_calibration_data = DEFAULT_SIGAN_CALIBRATION.copy()
         if self.sigan_calibration is not None:
             self.sigan_calibration_data.update(
                 self.sigan_calibration.get_calibration_dict(
@@ -264,8 +264,6 @@ class USRPRadio(RadioInterface):
                     gain=self.gain,
                 )
             )
-        else:
-            self.sigan_calibration_data = DEFAULT_SIGAN_CALIBRATION.copy()
 
         # Catch any defaulting calibration values for the sigan
         if self.sigan_calibration_data["gain_sigan"] is None:
