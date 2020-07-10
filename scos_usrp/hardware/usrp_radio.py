@@ -64,10 +64,6 @@ class USRPRadio(RadioInterface):
     def overload(self):
         return self._sigan_overload or self._sensor_overload
 
-    @property
-    def capture_time(self):
-        return self._capture_time
-
     # Define thresholds for determining ADC overload for the sigan
     ADC_FULL_RANGE_THRESHOLD = 0.98  # ADC scale -1<sample<1, magnitude threshold = 0.98
     ADC_OVERLOAD_THRESHOLD = (
@@ -92,7 +88,7 @@ class USRPRadio(RadioInterface):
         self.dsp_freq = None
         self._sigan_overload = False
         self._sensor_overload = False
-        self._capture_time = None
+        self.capture_time = None
 
         self.connect()
         self.get_calibration(sensor_cal_file, sigan_cal_file)
@@ -339,7 +335,7 @@ class USRPRadio(RadioInterface):
     ):  # -> np.ndarray:
         """Aquire num_samples_skip+num_samples samples and return the last num_samples"""
         self._sigan_overload = False
-        self._capture_time = None
+        self.capture_time = None
         # Get the calibration data for the acquisition
         self.recompute_calibration_data()
 
@@ -356,7 +352,7 @@ class USRPRadio(RadioInterface):
             else:
                 nsamps = num_samples + num_samples_skip
 
-            self._capture_time = utils.get_datetime_str_now()
+            self.capture_time = utils.get_datetime_str_now()
             samples = self.usrp.recv_num_samps(
                 nsamps,  # number of samples
                 self.frequency,  # center frequency in Hz
@@ -401,4 +397,13 @@ class USRPRadio(RadioInterface):
                 # Scale the data back to RF power and return it
                 data /= linear_gain
                 self.check_sensor_overload(data)
-                return data
+                measurement_result = {
+                    "data": data,
+                    "overload": self.overload,
+                    "frequency": self.frequency,
+                    "gain": self.gain,
+                    "sample_rate": self.sample_rate,
+                    "capture_time": self.capture_time,
+                    "calibration_annotation": self.create_calibration_annotation(),
+                }
+                return measurement_result
