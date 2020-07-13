@@ -1,1 +1,1 @@
-scos_actions @ git+${DOCKER_GIT_CREDENTIALS}/NTIA/scos_actions@master#egg=scos_actions
+scos_actions @ git+${DOCKER_GIT_CREDENTIALS}/NTIA/scos_actions@gps-sync#egg=scos_actions

@@ -450,8 +450,8 @@ class USRPRadio(RadioInterface):
             if gps_locked:
                 logger.debug("GPS Locked")
             else:
-                logger.error("GPS not locked")
                 raise RuntimeError("GPS lock could not be acquired.")
+                logger.error("GPS not locked")
 
             ## set time to gps time
             gps_time = self.uhd.types.TimeSpec(self.usrp.get_mboard_sensor("gps_time", 0).to_int() + 1)
