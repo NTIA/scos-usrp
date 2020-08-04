@@ -328,13 +328,15 @@ class USRPRadio(RadioInterface):
             )
 
     def acquire_time_domain_samples(
-        self, num_samples, num_samples_skip=0, retries=5
+        self, num_samples, num_samples_skip, retries=5
     ):  # -> np.ndarray:
         """Aquire num_samples_skip+num_samples samples and return the last num_samples"""
         self._sigan_overload = False
         self.capture_time = None
         # Get the calibration data for the acquisition
         self.recompute_calibration_data()
+        nsamps = int(num_samples)
+        nskip = int(num_samples_skip)
 
         # Compute the linear gain
         db_gain = self.sensor_calibration_data["gain_sensor"]
@@ -344,10 +346,8 @@ class USRPRadio(RadioInterface):
         max_retries = retries
         while True:
             # No need to skip initial samples when simulating the radio
-            if settings.RUNNING_TESTS or settings.MOCK_RADIO:
-                nsamps = num_samples
-            else:
-                nsamps = num_samples + num_samples_skip
+            if not settings.RUNNING_TESTS and not settings.MOCK_RADIO:
+                nsamps += nskip
 
             self.capture_time = utils.get_datetime_str_now()
             samples = self.usrp.recv_num_samps(
@@ -364,8 +364,8 @@ class USRPRadio(RadioInterface):
             data = samples[0]  # isolate data for channel 0
             data_len = len(data)
 
-            if not settings.RUNNING_TESTS:
-                data = data[num_samples_skip:]
+            if not settings.RUNNING_TESTS and not settings.MOCK_RADIO:
+                data = data[nskip:]
 
             if not len(data) == num_samples:
                 if retries > 0:
