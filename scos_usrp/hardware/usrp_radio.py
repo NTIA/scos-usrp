@@ -409,16 +409,14 @@ class USRPRadio(RadioInterface):
     def healthy(self):
         logger.debug("Performing USRP health check")
 
-        healthy = True
-        detail = ""
-
         if not self.is_available:
             return False
 
         requested_samples = 100000  # Issue #42 hit error at ~70k, so test more
 
         try:
-            data = self.acquire_time_domain_samples(requested_samples)
+            measurement_result = self.acquire_time_domain_samples(requested_samples)
+            data = measurement_result["data"]
         except Exception as e:
             logger.error("Unable to acquire samples from the USRP")
             logger.error(e)
@@ -427,3 +425,5 @@ class USRPRadio(RadioInterface):
         if not len(data) == requested_samples:
             logger.error("USRP data doesn't match request")
             return False
+
+        return True
