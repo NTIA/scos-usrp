@@ -328,7 +328,7 @@ class USRPRadio(RadioInterface):
             )
 
     def acquire_time_domain_samples(
-        self, num_samples, num_samples_skip, retries=5
+        self, num_samples, num_samples_skip=0, retries=5
     ):  # -> np.ndarray:
         """Aquire num_samples_skip+num_samples samples and return the last num_samples"""
         self._sigan_overload = False
