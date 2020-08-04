@@ -4,7 +4,7 @@ from scos_actions.actions.monitor_radio import RadioMonitor
 from scos_actions.actions.sync_gps import SyncGps
 from scos_actions.discover import init
 
-from scos_usrp.hardware import radio, gps
+from scos_usrp.hardware import gps, radio
 from scos_usrp.settings import ACTION_DEFINITIONS_DIR
 
 logger = logging.getLogger(__name__)

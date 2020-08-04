@@ -55,7 +55,6 @@ class USRPLocation(GPSInterface):
 
         # Then sleep 100ms and set next pps
         sleep(0.1)
-        
 
         if "gpsdo" not in usrp.get_clock_sources(0):
             logger.warning("No GPSDO clock source detected")

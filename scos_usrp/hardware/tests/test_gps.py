@@ -1,9 +1,9 @@
 import logging
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 from pytest import approx
 
-from scos_usrp.hardware import USRPRadio, USRPLocation
+from scos_usrp.hardware import USRPLocation, USRPRadio
 
 
 class TestGPS:

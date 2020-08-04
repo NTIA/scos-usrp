@@ -15,8 +15,6 @@ import logging
 from datetime import datetime
 
 import numpy as np
-
-# from hardware.radio_iface import RadioInterface
 from scos_actions import utils
 from scos_actions.hardware.radio_iface import RadioInterface
 
@@ -51,7 +49,6 @@ DEFAULT_SENSOR_CALIBRATION = {
 
 
 class USRPRadio(RadioInterface):
-
     @property
     def last_calibration_time(self):
         if self.sensor_calibration:
