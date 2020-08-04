@@ -1,1 +1,1 @@
-scos_actions @ git+${DOCKER_GIT_CREDENTIALS}/NTIA/scos_actions@generic_measurement_info#egg=scos_actions
+scos_actions @ git+${DOCKER_GIT_CREDENTIALS}/NTIA/scos_actions@sensor_annotation_bug#egg=scos_actions

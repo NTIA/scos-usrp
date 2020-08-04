@@ -1,4 +1,5 @@
 # scos_usrp
+
 USRP support for scos-sensor
 
 Requires pip>=18.1 (upgrade using `python3 -m pip install --upgrade pip`)
@@ -18,12 +19,14 @@ This is temporary until this repository is made public. ***Alternatively, you ca
 without authentication:*** `BASE_IMAGE=smsntia/uhd_b2xx_py3`.
 
 ## Running Unit Tests
+
 First set `DOCKER_GIT_CREDENTIALS` by running
 `export DOCKER_GIT_CREDENTIALS="$(cat ~/.git-credentials)"` if using git credential manager
 or by running
 `export DOCKER_GIT_CREDENTIALS=https://<username>:<password>@github.com` replacing \<username\> with your GitHub username
 and \<password\> with your GitHub password.
 Since the UHD drivers are required for testing, the tests are run inside a container with the UHD drivers.
+
 ```base
 docker build -f docker/Dockerfile-test -t usrp_test --build-arg DOCKER_GIT_CREDENTIALS .
 docker run usrp_test
