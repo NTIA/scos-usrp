@@ -430,7 +430,7 @@ class USRPRadio(RadioInterface):
             self.usrp.set_rx_freq(self.uhd.types.TuneRequest(self.frequency), channel)
             self.usrp.set_rx_gain(self.gain, channel)
             #self.usrp.set_rx_bandwidth(14e6)
-            self.usrp.set_antenna("TX/RX")
+            self.usrp.set_rx_antenna("TX/RX", 0)
 
             ## sleep for a second after setup
             time.sleep(1)
