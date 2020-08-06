@@ -561,7 +561,10 @@ class USRPRadio(RadioInterface):
                         err = "ERROR_CODE_TIMEOUT occured. Time between issue_stream_cmd() and recv() was longer than 0.1 seconds."
                         raise RuntimeError(err)
                     elif md.error_code == 2:
-                        err = "ERRfrequencyes += num_rx_samps
+                        err = "ERROR_CODE_LATE_COMMAND occured. GPS start time already passed."
+                        raise RuntimeError(err)
+                
+                num_received_samples += num_rx_samps
 
             ## clean up
             stream_cmd = self.uhd.types.StreamCMD(self.uhd.types.StreamMode.stop_cont)
