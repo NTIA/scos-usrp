@@ -613,11 +613,11 @@ class USRPRadio(RadioInterface):
 
 
     ### Vadim's PN transmit code below
-    def transmit_pn(self):
+    def transmit_pn(self, seed, sampspersymbol, spacing, duration_ms):
         # """TX samples based on input arguments"""
         #save IQdata
 
-        data = self.create_IQdata(self.seed, self.sampspersymbol, self.spacing)
+        data = self.create_IQdata(seed, sampspersymbol, spacing)
         np.reshape(data, (len(data),1))
         # if args.save:
         #     if args.output_file == None:
@@ -656,7 +656,7 @@ class USRPRadio(RadioInterface):
         big_buff = np.empty(big_buff_size)
         for i in range(big_buff_size):
             big_buff[i] = data[i%len(data)]
-        num_buffs = (self.duration_ms / 1000) * self.sample_rate // big_buff_size
+        num_buffs = (duration_ms / 1000) * self.sample_rate // big_buff_size
 
         ## set up metadata
         tx_md = self.uhd.types.TXMetadata()
