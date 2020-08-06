@@ -384,12 +384,20 @@ class USRPRadio(RadioInterface):
                 self._sigan_overload = False
                 # i_samples = np.abs(np.real(data))
                 # q_samples = np.abs(np.imag(data))
-                i_over_threshold = np.sum(
-                    np.abs(np.real(data)) > self.ADC_FULL_RANGE_THRESHOLD
-                )
-                q_over_threshold = np.sum(
-                    np.abs(np.imag(data)) > self.ADC_FULL_RANGE_THRESHOLD
-                )
+                i_over_threshold = 0
+                q_over_threshold = 0
+                # iterate through array to avoid allocating additional memory
+                for complex_sample in data:
+                    if np.abs(np.real(complex_sample)) > self.ADC_FULL_RANGE_THRESHOLD:
+                        i_over_threshold += 1
+                    if np.abs(np.imag(complex_sample)) > self.ADC_FULL_RANGE_THRESHOLD:
+                        q_over_threshold += 1
+                # i_over_threshold = np.sum(
+                #     np.abs(np.real(data)) > self.ADC_FULL_RANGE_THRESHOLD
+                # )
+                # q_over_threshold = np.sum(
+                #     np.abs(np.imag(data)) > self.ADC_FULL_RANGE_THRESHOLD
+                # )
                 total_over_threshold = i_over_threshold + q_over_threshold
                 ratio_over_threshold = float(total_over_threshold) / num_samples
                 if ratio_over_threshold > self.ADC_OVERLOAD_THRESHOLD:
