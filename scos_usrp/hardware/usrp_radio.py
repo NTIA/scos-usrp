@@ -382,10 +382,14 @@ class USRPRadio(RadioInterface):
 
                 # Check IQ values versus ADC max for sigan compression
                 self._sigan_overload = False
-                i_samples = np.abs(np.real(data))
-                q_samples = np.abs(np.imag(data))
-                i_over_threshold = np.sum(i_samples > self.ADC_FULL_RANGE_THRESHOLD)
-                q_over_threshold = np.sum(q_samples > self.ADC_FULL_RANGE_THRESHOLD)
+                # i_samples = np.abs(np.real(data))
+                # q_samples = np.abs(np.imag(data))
+                i_over_threshold = np.sum(
+                    np.abs(np.real(data)) > self.ADC_FULL_RANGE_THRESHOLD
+                )
+                q_over_threshold = np.sum(
+                    np.abs(np.imag(data)) > self.ADC_FULL_RANGE_THRESHOLD
+                )
                 total_over_threshold = i_over_threshold + q_over_threshold
                 ratio_over_threshold = float(total_over_threshold) / num_samples
                 if ratio_over_threshold > self.ADC_OVERLOAD_THRESHOLD:
