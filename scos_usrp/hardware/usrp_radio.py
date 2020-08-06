@@ -52,6 +52,13 @@ DEFAULT_SENSOR_CALIBRATION = {
     "1db_compression_preselector": 100,
 }
 
+WAVEFORMS = {
+    "sine": lambda n, tone_offset, rate: np.exp(n * 2j * np.pi * tone_offset / rate),
+    "square": lambda n, tone_offset, rate: np.sign(WAVEFORMS["sine"](n, tone_offset, rate)),
+    "const": lambda n, tone_offset, rate: 1 + 1j,
+    "ramp": lambda n, tone_offset, rate:
+            2*(n*(tone_offset/rate) - np.floor(float(0.5 + n*(tone_offset/rate))))
+}
 
 class USRPRadio(RadioInterface):
     @property
@@ -336,6 +343,60 @@ class USRPRadio(RadioInterface):
                 > self.sensor_calibration_data["1db_compression_sensor"]
             )
 
+    ## for PN transmitter
+    def create_IQdata(seed, sampspersymbol, spacing):
+        #Variable initiation
+        N = (2**9) - 1
+        x1 = np.zeros(N+1)
+        x1[0] = seed[0]
+        x2 = np.zeros(N+1)
+        x2[0] = seed[1]
+        x3 = np.zeros(N+1)
+        x3[0] = seed[2]
+        x4 = np.zeros(N+1)
+        x4[0] = seed[3]
+        x5 = np.zeros(N+1)
+        x5[0] = seed[4]
+        x6 = np.zeros(N+1)
+        x6[0] = seed[5]
+        x7 = np.zeros(N+1)
+        x7[0] = seed[6]
+        x8 = np.zeros(N+1)
+        x8[0] = seed[7]
+        x9 = np.zeros(N+1)
+        x9[0] = seed[8]
+        #Linear shift register
+        for i in range(N):
+            x1[i + 1] = x2[i]
+            x2[i + 1] = x3[i]
+            x3[i + 1] = x4[i]
+            x4[i + 1] = x5[i]
+            x5[i + 1] = x6[i]
+            x6[i + 1] = x7[i]
+            x7[i + 1] = x8[i]
+            x8[i + 1] = x9[i]
+            x9[i + 1] = (x1[i] + x5[i]) % 2
+        #Binary Phase Shift Key
+        #Use x9 for PN sequence
+        for i in range(N+1):
+            if x9[i] == 0:
+                x9[i] = 1
+            else:
+                x9[i] = -1
+        # Increase samples per symbol
+        inc = sampspersymbol  #increase scale factor
+        data = np.empty(inc * len(x9))
+        for i in range(len(x9)):
+            val = x9[i]
+            for j in range(inc):
+                data[i * inc + j] = val
+        #Add spacing if specified
+        if spacing:
+            sp = spacing
+            data = np.append(data, np.zeros(sp))
+        return data
+
+
     def acquire_time_domain_samples(
         self, num_samples, num_samples_skip=0, retries=5
     ):  # -> np.ndarray:
@@ -500,10 +561,7 @@ class USRPRadio(RadioInterface):
                         err = "ERROR_CODE_TIMEOUT occured. Time between issue_stream_cmd() and recv() was longer than 0.1 seconds."
                         raise RuntimeError(err)
                     elif md.error_code == 2:
-                        err = "ERROR_CODE_LATE_COMMAND occured. GPS start time already passed."
-                        raise RuntimeError(err)
-                
-                num_received_samples += num_rx_samps
+                        err = "ERRfrequencyes += num_rx_samps
 
             ## clean up
             stream_cmd = self.uhd.types.StreamCMD(self.uhd.types.StreamMode.stop_cont)
@@ -549,3 +607,66 @@ class USRPRadio(RadioInterface):
                 # Scale the data back to RF power and return it
                 data /= linear_gain
                 return data
+
+
+    ### Vadim's PN transmit code below
+    def transmit_pn(self):
+        # """TX samples based on input arguments"""
+        #save IQdata
+
+        data = create_IQdata(self.seed, self.sampspersymbol, self.spacing)
+        np.reshape(data, (len(data),1))
+        # if args.save:
+        #     if args.output_file == None:
+        #         print("Could not save IQ data, please specify a file name")
+        #     else:
+        #         with open(args.output_file, 'wb') as out_file:
+        #         if args.numpy:
+        #                 np.save(out_file, data, allow_pickle=False, fix_imports=False)
+        #         else:
+        #             data.tofile(out_file)
+
+        # send transmission
+        # usrp.send_waveform(data, args.duration, args.freq, args.rate, args.channels, args.gain)
+
+        ## redo for scos version of uhd
+        channel = 0 
+        self.usrp.set_clock_source("gpsdo", 0)
+        self.usrp.set_time_source("gpsdo", 0)
+        self.usrp.set_tx_rate(self.sample_rate, channel)
+        self.usrp.set_tx_freq(self.uhd.types.TuneRequest(self.frequency), channel)
+        self.usrp.set_tx_gain(self.gain, channel)
+        self.usrp.set_tx_antenna("TX/RX", 0)
+        ## sleep for a quarter second after setup
+        time.sleep(0.25)
+
+        ## create the tx_stream
+        stream_args = self.uhd.usrp.StreamArgs("fc32", "sc16")
+        stream_args.channels = (0,)
+        tx_stream = self.usrp.get_tx_stream(stream_args)
+        samps_per_buff = tx_stream.get_max_num_samps()
+
+        ## build buffer
+        msg = "max_send_buffer_size {} pn_sample_size {}."
+        logger.debug(msg.format(samps_per_buff, len(data)))
+        big_buff_size = samps_per_buff // len(data) * len(data)
+        big_buff = np.empty(big_buff_size)
+        for i in range(big_buff_size):
+            big_buff[i] = data[i%len(data)]
+        num_buffs = (self.duration_ms / 1000) * self.sample_rate // big_buff_size
+
+        ## set up metadata
+        tx_md = self.uhd.types.TXMetadata()
+        tx_md.start_of_burst=True ## is true when it is the first packet in a chain
+        tx_md.end_of_burst=False ## is true when it's the last packet in a chain
+        tx_md.has_time_spec=True 
+        gps_time = self.uhd.types.TimeSpec(self.usrp.get_mboard_sensor("gps_time", 0).to_int() + 1)
+        tx_md.time_spec=gps_time ## when to send the first sample
+
+        ## transmit
+        for i in range(num_buffs-1):
+            samps_sent = tx_stream.send(big_buff, tx_md)
+            tx_md.start_of_burst=False
+        tx_md.end_of_burst=True
+        samps_sent = tx_stream.send(big_buff, tx_md)
+        return data
