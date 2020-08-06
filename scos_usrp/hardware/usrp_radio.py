@@ -617,7 +617,7 @@ class USRPRadio(RadioInterface):
         # """TX samples based on input arguments"""
         #save IQdata
 
-        data = create_IQdata(self.seed, self.sampspersymbol, self.spacing)
+        data = self.create_IQdata(self.seed, self.sampspersymbol, self.spacing)
         np.reshape(data, (len(data),1))
         # if args.save:
         #     if args.output_file == None:
