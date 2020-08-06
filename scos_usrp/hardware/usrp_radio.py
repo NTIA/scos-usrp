@@ -344,7 +344,7 @@ class USRPRadio(RadioInterface):
             )
 
     ## for PN transmitter
-    def create_IQdata(seed, sampspersymbol, spacing):
+    def create_IQdata(self, seed, sampspersymbol, spacing):
         #Variable initiation
         N = (2**9) - 1
         x1 = np.zeros(N+1)
