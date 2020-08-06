@@ -385,8 +385,8 @@ class USRPRadio(RadioInterface):
                 x9[i] = -1
         # Increase samples per symbol
         inc = sampspersymbol  #increase scale factor
-        data = np.empty(inc * len(x9))
-        for i in range(len(x9)):
+        data = np.empty(inc * len(x9)-1)
+        for i in range(len(x9)-1):
             val = x9[i]
             for j in range(inc):
                 data[i * inc + j] = val
