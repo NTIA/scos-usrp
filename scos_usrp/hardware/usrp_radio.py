@@ -619,18 +619,6 @@ class USRPRadio(RadioInterface):
 
         data = self.create_IQdata(seed, sampspersymbol, spacing)
         np.reshape(data, (len(data),1))
-        # if args.save:
-        #     if args.output_file == None:
-        #         print("Could not save IQ data, please specify a file name")
-        #     else:
-        #         with open(args.output_file, 'wb') as out_file:
-        #         if args.numpy:
-        #                 np.save(out_file, data, allow_pickle=False, fix_imports=False)
-        #         else:
-        #             data.tofile(out_file)
-
-        # send transmission
-        # usrp.send_waveform(data, args.duration, args.freq, args.rate, args.channels, args.gain)
 
         ## redo for scos version of uhd
         channel = 0 
@@ -656,7 +644,7 @@ class USRPRadio(RadioInterface):
         big_buff = np.empty(big_buff_size)
         for i in range(big_buff_size):
             big_buff[i] = data[i%len(data)]
-        num_buffs = (duration_ms / 1000) * self.sample_rate // big_buff_size
+        num_buffs = int((duration_ms / 1000) * self.sample_rate // big_buff_size)
 
         ## set up metadata
         tx_md = self.uhd.types.TXMetadata()
