@@ -640,27 +640,56 @@ class USRPRadio(RadioInterface):
         ## build buffer
         msg = "max_send_buffer_size {} pn_sample_size {}."
         logger.debug(msg.format(samps_per_buff, len(data)))
-        big_buff_size = samps_per_buff // len(data) * len(data)
-        big_buff = np.empty(big_buff_size)
-        for i in range(big_buff_size):
-            big_buff[i] = data[i%len(data)]
-        num_buffs = int((duration_ms / 1000) * self.sample_rate // big_buff_size)
 
         ## set up metadata
         tx_md = self.uhd.types.TXMetadata()
         tx_md.start_of_burst=True ## is true when it is the first packet in a chain
         tx_md.end_of_burst=False ## is true when it's the last packet in a chain
         tx_md.has_time_spec=False 
-        # gps_time = self.uhd.types.TimeSpec(self.usrp.get_mboard_sensor("gps_time", 0).to_int() + 1)
-        # tx_md.time_spec=gps_time ## when to send the first sample
-        logger.debug("num_buffs_to_send {}".format(num_buffs))
 
-        ## transmit
-        for i in range(num_buffs-1):
+        if len(data) <= samps_per_buff:
+            big_buff_size = samps_per_buff // len(data) * len(data)
+        
+            big_buff = np.empty(big_buff_size)
+            for i in range(big_buff_size):
+                big_buff[i] = data[i%len(data)]
+            num_buffs = int((duration_ms / 1000) * self.sample_rate // big_buff_size)
+
+            logger.debug("num_buffs_to_send {}".format(num_buffs))
+
+            ## transmit
+            for i in range(num_buffs-1):
+                samps_sent = tx_stream.send(big_buff, tx_md)
+                tx_md.start_of_burst=False
+                logger.debug(".")
+            tx_md.end_of_burst=True
             samps_sent = tx_stream.send(big_buff, tx_md)
-            tx_md.start_of_burst=False
-            logger.debug(".")
-        tx_md.end_of_burst=True
-        samps_sent = tx_stream.send(big_buff, tx_md)
-        logger.debug("TX over")
+            logger.debug("TX over")
+        else:
+            num_2040_buffs = len(data) // samps_per_buff
+            mod_2040_buffs = len(data) % samps_per_buff
+            big_buff = np.empty((num_2040_buffs, samps_per_buff))
+            mod_buff = np.empty(mod_2040_buffs)
+            for i in range(len(data)):
+                if i < len(data) - mod_2040_buffs:
+                    big_buff[i//samps_per_buff][i%samps_per_buff] = data[i]
+                else:
+                    mod_buff[i-(len(data) - mod_2040_buffs)] = data[i]
+
+            num_buffs = int((duration_ms / 1000) * self.sample_rate // len(data))
+
+            logger.debug("num_buffs_to_send {}".format(num_buffs))
+            
+            ## transmit
+            for i in range(num_buffs-1):
+                for j in range(num_2040_buffs):
+                    samps_sent = tx_stream.send(big_buff[j], tx_md)
+                    tx_md.start_of_burst=False
+                    logger.debug(".")
+                if mod_2040_buffs > 0: ## send remainder
+                    samps_sent = tx_stream.send(mod_buff, tx_md)
+            tx_md.end_of_burst=True
+            samps_sent = tx_stream.send(big_buff[0], tx_md)
+            logger.debug("TX over")
+
         return data
