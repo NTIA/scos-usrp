@@ -653,7 +653,7 @@ class USRPRadio(RadioInterface):
         tx_md.has_time_spec=False 
         # gps_time = self.uhd.types.TimeSpec(self.usrp.get_mboard_sensor("gps_time", 0).to_int() + 1)
         # tx_md.time_spec=gps_time ## when to send the first sample
-        logger.debug("num_buffs_to_send".format(num_buffs))
+        logger.debug("num_buffs_to_send {}".format(num_buffs))
 
         ## transmit
         for i in range(num_buffs-1):
