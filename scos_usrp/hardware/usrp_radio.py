@@ -344,7 +344,7 @@ class USRPRadio(RadioInterface):
             )
 
     ## for PN transmitter
-    def create_IQdata(self, seed, sampspersymbol, spacing):
+    def create_IQdata(self, seed, sampspersymbol):
         #Variable initiation
         N = (2**9) - 1
         x1 = np.zeros(N+1)
@@ -390,11 +390,14 @@ class USRPRadio(RadioInterface):
             val = x9[i]
             for j in range(inc):
                 data[i * inc + j] = val
+        # Chop off last 2 bits
+        chop_num = inc * 2
+        data_resized = np.resize(data, (len(data)-chop_num,))
         #Add spacing if specified
-        if spacing:
-            sp = spacing
-            data = np.append(data, np.zeros(sp))
-        return data
+        # if spacing:
+        #     sp = spacing
+        #     data = np.append(data, np.zeros(sp))
+        return data_resized
 
 
     def acquire_time_domain_samples(
@@ -613,11 +616,11 @@ class USRPRadio(RadioInterface):
 
 
     ### Vadim's PN transmit code below
-    def transmit_pn(self, seed, sampspersymbol, spacing, duration_ms):
+    def transmit_pn(self, seed, sampspersymbol, duration_ms):
         # """TX samples based on input arguments"""
         #save IQdata
 
-        data = self.create_IQdata(seed, sampspersymbol, spacing)
+        data = self.create_IQdata(seed, sampspersymbol)
         np.reshape(data, (len(data),1))
 
         ## redo for scos version of uhd
@@ -659,7 +662,7 @@ class USRPRadio(RadioInterface):
             for i in range(num_buffs-1):
                 samps_sent = tx_stream.send(big_buff, tx_md)
                 tx_md.start_of_burst=False
-                logger.debug(".")
+                # logger.debug(".")
             tx_md.end_of_burst=True
             samps_sent = tx_stream.send(big_buff, tx_md)
             logger.debug("TX over")
@@ -680,7 +683,7 @@ class USRPRadio(RadioInterface):
                 for j in range(num_2040_buffs):
                     samps_sent = tx_stream.send(big_buff[j], tx_md)
                     tx_md.start_of_burst=False
-                    logger.debug(".")
+                    # logger.debug(".")
             tx_md.end_of_burst=True
             samps_sent = tx_stream.send(big_buff[0], tx_md)
             logger.debug("TX over")
