@@ -1,4 +1,4 @@
-# Developing in scos-actions
+# Developing in scos_usrp
 
 This document describes development practices for this repository.
 
@@ -20,10 +20,10 @@ docker run usrp_test
 ## Committing
 
 Besides running the test suite and ensuring that all tests are passing, we also expect
-all python code that's checked in to have been run through an auto-formatter.
+all Python code that's checked in to have been run through an auto-formatter.
 
-This project uses a Python auto-formatter called Black. Additionally, import statement
-sorting is handled by `isort`.
+This project uses a Python auto-formatter called black. Additionally, import statement
+sorting is handled by isort.
 
 There are several ways to autoformat your code before committing. First, IDE
 integration with on-save hooks is very useful. Second, if you've already pip-installed

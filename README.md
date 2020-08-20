@@ -4,10 +4,10 @@ USRP support for scos-sensor
 
 Requires pip>=18.1 (upgrade using `python3 -m pip install --upgrade pip`)
 
- This repository includes many 700MHz band actions in
- [scos_usrp/configs/actions](scos_usrp/configs/actions). Action classes,
- RadioInterface, GPSInterface, and signals are used from
- [scos_actions](https://github.com/ntia/scos_actions).
+This repository includes many 700MHz band actions in
+[scos_usrp/configs/actions](scos_usrp/configs/actions). Action classes,
+RadioInterface, GPSInterface, and signals are used from
+[scos_actions](https://github.com/ntia/scos_actions).
 
 For information on adding actions, see the
 [scos_actions documentation](https://github.com/ntia/scos_actions).
@@ -20,5 +20,5 @@ UHD drivers. However, it requires [authentication to GitHub packages](https://he
 using a
 [GitHub personal access token](https://help.github.com/en/packages/publishing-and-managing-packages/about-github-packages#about-tokens).
 This is temporary until this repository is made public. ***Alternatively, you can use
-the image hosted on Docker Hub without authentication:
-*** `BASE_IMAGE=smsntia/uhd_b2xx_py3`.
+the image hosted on Docker Hub without authentication:***
+`BASE_IMAGE=smsntia/uhd_b2xx_py3`.
