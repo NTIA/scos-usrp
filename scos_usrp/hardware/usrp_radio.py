@@ -15,7 +15,6 @@ import logging
 from datetime import datetime
 
 import numpy as np
-from numba import jit
 from scos_actions import utils
 from scos_actions.hardware.radio_iface import RadioInterface
 
@@ -47,17 +46,6 @@ DEFAULT_SENSOR_CALIBRATION = {
     "noise_figure_preselector": 0,
     "1db_compression_preselector": 100,
 }
-
-
-@jit(nopython=True)
-def check_sigan_overload(data, threshold):
-    total_over_threshold = 0
-    for complex_sample in data:
-        if np.abs(np.real(complex_sample)) > threshold:
-            total_over_threshold += 1
-        if np.abs(np.imag(complex_sample)) > threshold:
-            total_over_threshold += 1
-    return total_over_threshold
 
 
 class USRPRadio(RadioInterface):
@@ -326,7 +314,9 @@ class USRPRadio(RadioInterface):
         pass
 
     def check_sensor_overload(self, data):
-        time_domain_avg_power = 10 * np.log10(np.mean(np.abs(data) ** 2))
+        measured_data = data.astype(np.complex64)
+
+        time_domain_avg_power = 10 * np.log10(np.mean(np.abs(measured_data) ** 2))
         time_domain_avg_power += (
             10 * np.log10(1 / (2 * 50)) + 30
         )  # Convert log(V^2) to dBm
@@ -392,9 +382,12 @@ class USRPRadio(RadioInterface):
                 logger.debug("Successfully acquired {} samples.".format(num_samples))
 
                 # Check IQ values versus ADC max for sigan compression
-                total_over_threshold = check_sigan_overload(
-                    data, self.ADC_FULL_RANGE_THRESHOLD
-                )
+                self._sigan_overload = False
+                i_samples = np.abs(np.real(data))
+                q_samples = np.abs(np.imag(data))
+                i_over_threshold = np.sum(i_samples > self.ADC_FULL_RANGE_THRESHOLD)
+                q_over_threshold = np.sum(q_samples > self.ADC_FULL_RANGE_THRESHOLD)
+                total_over_threshold = i_over_threshold + q_over_threshold
                 ratio_over_threshold = float(total_over_threshold) / num_samples
                 if ratio_over_threshold > self.ADC_OVERLOAD_THRESHOLD:
                     self._sigan_overload = True
