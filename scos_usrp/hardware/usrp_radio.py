@@ -31,6 +31,7 @@ else:
     USRP_CONNECTION_ARGS = ""
 
 logger = logging.getLogger(__name__)
+logger.debug(f"USRP_CONNECTION_ARGS = {USRP_CONNECTION_ARGS}")
 
 # Testing determined these gain values provide a good mix of sensitivity and
 # dynamic range performance
