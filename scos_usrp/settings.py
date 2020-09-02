@@ -31,3 +31,8 @@ if not settings.configured or not hasattr(settings, "MOCK_RADIO_RANDOM"):
     MOCK_RADIO_RANDOM = env.bool("MOCK_RADIO_RANDOM", default=False)
 else:
     MOCK_RADIO_RANDOM = settings.MOCK_RADIO_RANDOM
+
+if hasattr(settings, "USRP_CONNECTION_ARGS"):
+    USRP_CONNECTION_ARGS = settings.USRP_CONNECTION_ARGS
+else:
+    USRP_CONNECTION_ARGS = ""

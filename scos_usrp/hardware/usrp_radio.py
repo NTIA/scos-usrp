@@ -15,7 +15,6 @@ import logging
 from datetime import datetime
 
 import numpy as np
-from django.conf import settings
 from numba import jit
 from scos_actions import utils
 from scos_actions.hardware.radio_iface import RadioInterface
@@ -25,13 +24,8 @@ from scos_usrp.hardware import calibration
 from scos_usrp.hardware.mocks.usrp_block import MockUsrp
 from scos_usrp.hardware.tests.resources.utils import create_dummy_calibration
 
-if hasattr(settings, "USRP_CONNECTION_ARGS"):
-    USRP_CONNECTION_ARGS = settings.USRP_CONNECTION_ARGS
-else:
-    USRP_CONNECTION_ARGS = ""
-
 logger = logging.getLogger(__name__)
-logger.debug(f"USRP_CONNECTION_ARGS = {USRP_CONNECTION_ARGS}")
+logger.debug(f"USRP_CONNECTION_ARGS = {settings.USRP_CONNECTION_ARGS}")
 
 # Testing determined these gain values provide a good mix of sensitivity and
 # dynamic range performance
@@ -128,7 +122,9 @@ class USRPRadio(RadioInterface):
                 logger.warning("uhd not available - disabling radio")
                 return False
 
-            usrp_args = f"type=b200,{USRP_CONNECTION_ARGS}"  # find any b-series device
+            usrp_args = (
+                f"type=b200,{settings.USRP_CONNECTION_ARGS}"  # find any b-series device
+            )
             logger.debug(f"usrp_args = {usrp_args}")
 
             try:
