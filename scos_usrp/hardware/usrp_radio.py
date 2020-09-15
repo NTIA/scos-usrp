@@ -413,7 +413,7 @@ class USRPRadio(RadioInterface):
         if not self.is_available:
             return False
 
-        requested_samples = 100000  # Issue #42 hit error at ~70k, so test more
+        requested_samples = 100000
 
         try:
             measurement_result = self.acquire_time_domain_samples(requested_samples)
