@@ -85,7 +85,7 @@ class USRPRadio(RadioInterface):
         self.dsp_freq = None
         self._sigan_overload = False
         self._sensor_overload = False
-        self.capture_time = None
+        self._capture_time = None
 
         self.connect()
         self.get_calibration(sensor_cal_file, sigan_cal_file)
@@ -333,7 +333,7 @@ class USRPRadio(RadioInterface):
     ):  # -> np.ndarray:
         """Aquire num_samples_skip+num_samples samples and return the last num_samples"""
         self._sigan_overload = False
-        self.capture_time = None
+        self._capture_time = None
         # Get the calibration data for the acquisition
         self.recompute_calibration_data()
         nsamps = int(num_samples)
@@ -350,7 +350,7 @@ class USRPRadio(RadioInterface):
             if not settings.RUNNING_TESTS and not settings.MOCK_RADIO:
                 nsamps += nskip
 
-            self.capture_time = utils.get_datetime_str_now()
+            self._capture_time = utils.get_datetime_str_now()
             samples = self.usrp.recv_num_samps(
                 nsamps,  # number of samples
                 self.frequency,  # center frequency in Hz
@@ -401,7 +401,7 @@ class USRPRadio(RadioInterface):
                     "frequency": self.frequency,
                     "gain": self.gain,
                     "sample_rate": self.sample_rate,
-                    "capture_time": self.capture_time,
+                    "capture_time": self._capture_time,
                     "calibration_annotation": self.create_calibration_annotation(),
                 }
                 return measurement_result
