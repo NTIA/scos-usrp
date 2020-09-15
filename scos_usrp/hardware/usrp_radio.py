@@ -15,8 +15,6 @@ import logging
 from datetime import datetime
 
 import numpy as np
-
-# from hardware.radio_iface import RadioInterface
 from scos_actions import utils
 from scos_actions.hardware.radio_iface import RadioInterface
 
@@ -62,10 +60,6 @@ class USRPRadio(RadioInterface):
     @property
     def overload(self):
         return self._sigan_overload or self._sensor_overload
-
-    @property
-    def capture_time(self):
-        return self._capture_time
 
     # Define thresholds for determining ADC overload for the sigan
     ADC_FULL_RANGE_THRESHOLD = 0.98  # ADC scale -1<sample<1, magnitude threshold = 0.98
@@ -319,6 +313,7 @@ class USRPRadio(RadioInterface):
 
     def check_sensor_overload(self, data):
         measured_data = data.astype(np.complex64)
+
         time_domain_avg_power = 10 * np.log10(np.mean(np.abs(measured_data) ** 2))
         time_domain_avg_power += (
             10 * np.log10(1 / (2 * 50)) + 30
@@ -339,6 +334,8 @@ class USRPRadio(RadioInterface):
         self._capture_time = None
         # Get the calibration data for the acquisition
         self.recompute_calibration_data()
+        nsamps = int(num_samples)
+        nskip = int(num_samples_skip)
 
         # Compute the linear gain
         db_gain = self.sensor_calibration_data["gain_sensor"]
@@ -348,10 +345,8 @@ class USRPRadio(RadioInterface):
         max_retries = retries
         while True:
             # No need to skip initial samples when simulating the radio
-            if settings.RUNNING_TESTS or settings.MOCK_RADIO:
-                nsamps = num_samples
-            else:
-                nsamps = num_samples + num_samples_skip
+            if not settings.RUNNING_TESTS and not settings.MOCK_RADIO:
+                nsamps += nskip
 
             self._capture_time = utils.get_datetime_str_now()
             samples = self.usrp.recv_num_samps(
@@ -368,8 +363,8 @@ class USRPRadio(RadioInterface):
             data = samples[0]  # isolate data for channel 0
             data_len = len(data)
 
-            if not settings.RUNNING_TESTS:
-                data = data[num_samples_skip:]
+            if not settings.RUNNING_TESTS and not settings.MOCK_RADIO:
+                data = data[nskip:]
 
             if not len(data) == num_samples:
                 if retries > 0:
@@ -397,4 +392,37 @@ class USRPRadio(RadioInterface):
 
                 # Scale the data back to RF power and return it
                 data /= linear_gain
-                return data
+                self.check_sensor_overload(data)
+                measurement_result = {
+                    "data": data,
+                    "overload": self.overload,
+                    "frequency": self.frequency,
+                    "gain": self.gain,
+                    "sample_rate": self.sample_rate,
+                    "capture_time": self._capture_time,
+                    "calibration_annotation": self.create_calibration_annotation(),
+                }
+                return measurement_result
+
+    @property
+    def healthy(self):
+        logger.debug("Performing USRP health check")
+
+        if not self.is_available:
+            return False
+
+        requested_samples = 100000
+
+        try:
+            measurement_result = self.acquire_time_domain_samples(requested_samples)
+            data = measurement_result["data"]
+        except Exception as e:
+            logger.error("Unable to acquire samples from the USRP")
+            logger.error(e)
+            return False
+
+        if not len(data) == requested_samples:
+            logger.error("USRP data doesn't match request")
+            return False
+
+        return True

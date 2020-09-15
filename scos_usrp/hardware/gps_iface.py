@@ -55,14 +55,6 @@ class USRPLocation(GPSInterface):
 
         # Then sleep 100ms and set next pps
         sleep(0.1)
-        # To use gr-uhd instead of UHD python driver, this line needs to change
-        # gps_t = uhd.time_spec_t(usrp.get_mboard_sensor('gps_time').to_int() + 1)
-        gps_t = uhd.types.TimeSpec(usrp.get_mboard_sensor("gps_time").to_int() + 1)
-        usrp.set_time_next_pps(gps_t)
-        dt = datetime.fromtimestamp(gps_t.get_real_secs())
-        date_cmd = ["date", "-s", "{:}".format(dt.strftime("%Y/%m/%d %H:%M:%S"))]
-        subprocess.check_output(date_cmd, shell=True)
-        logger.info("Set USRP and system time to GPS time {}".format(dt.ctime()))
 
         if "gpsdo" not in usrp.get_clock_sources(0):
             logger.warning("No GPSDO clock source detected")
@@ -130,3 +122,12 @@ class USRPLocation(GPSInterface):
         logger.info(msg)
 
         return latitude_dd, longitude_dd
+
+    def get_gps_time(self):
+        uhd = self.radio.uhd
+        usrp = self.radio.usrp
+
+        gps_t = uhd.types.TimeSpec(usrp.get_mboard_sensor("gps_time").to_int() + 1)
+        usrp.set_time_next_pps(gps_t)
+        dt = datetime.fromtimestamp(gps_t.get_real_secs())
+        return dt

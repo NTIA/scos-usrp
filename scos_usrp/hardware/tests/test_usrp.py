@@ -99,7 +99,8 @@ class TestUSRP:
         self.rx.sample_rate = int(10e6)
         self.rx.frequency = 1e9
         self.rx.gain = 20
-        data = self.rx.acquire_time_domain_samples(1000)
+        measurement_result = self.rx.acquire_time_domain_samples(1000)
+        data = measurement_result["data"]
 
         # The true value should be the 1 / linear gain
         true_val = easy_gain(int(10e6), 1e9, 20) - 10
