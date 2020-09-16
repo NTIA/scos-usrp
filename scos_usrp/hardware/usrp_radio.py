@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
 
 # Testing determined these gain values provide a good mix of sensitivity and
 # dynamic range performance
-VALID_GAINS = (0, 20, 40, 60, 80, 90)
+VALID_GAINS = (0, 5, 10, 15, 20, 25, 30, 35, 40, 60, 80, 90)
 
 CLOCK_TIMEOUT = 1000  # 1000mS timeout for external clock locking
 
