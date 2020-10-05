@@ -1,2 +1,2 @@
 environs~=7.3.1
-scos_actions @ git+${DOCKER_GIT_CREDENTIALS}/NTIA/scos-actions@master#egg=scos_actions
+scos_actions @ git+${DOCKER_GIT_CREDENTIALS}/NTIA/scos-actions@PublicRelease#egg=scos_actions
