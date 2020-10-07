@@ -13,7 +13,7 @@ def is_close(a, b, tolerance):
     return abs(a - b) <= tolerance
 
 
-def create_dummy_calibration():
+def create_dummy_calibration(empty_cal=False):
     """Create a dummy calibration object"""
 
     # Define the calibration file steps
@@ -38,22 +38,36 @@ def create_dummy_calibration():
     # Create the frequency divisions
     calibration_frequency_divisions = []
 
-    # Create the actual data
+    # Create the actual data if not an empty cal file
     calibration_data = {}
-    for sr in sample_rates:
-        for f in frequencies:
-            for g in gains:
-                # Make sure the dicts are feshed out
-                if sr not in calibration_data.keys():
-                    calibration_data[sr] = {}
-                if f not in calibration_data[sr].keys():
-                    calibration_data[sr][f] = {}
-                calibration_data[sr][f][g] = {
-                    "gain_sigan": easy_gain(sr, f, g),
-                    "gain_preselector": -10,
-                    "gain_sensor": easy_gain(sr, f, g) - 10,
-                    "1db_compression_sensor": 1,
+    if not empty_cal:
+        for sr in sample_rates:
+            for f in frequencies:
+                for g in gains:
+                    # Make sure the dicts are feshed out
+                    if sr not in calibration_data.keys():
+                        calibration_data[sr] = {}
+                    if f not in calibration_data[sr].keys():
+                        calibration_data[sr][f] = {}
+                    calibration_data[sr][f][g] = {
+                        "gain_sigan": easy_gain(sr, f, g),
+                        "gain_preselector": -10,
+                        "gain_sensor": easy_gain(sr, f, g) - 10,
+                        "1db_compression_sensor": 1,
+                    }
+    else:  # Create an empty calibration file
+        calibration_data = {  # Empty calibration file data
+            10e6: {
+                1e9: {
+                    40: {},
+                    60: {}
+                },
+                2e9: {
+                    40: {},
+                    60: {}
                 }
+            }
+        }
 
     return Calibration(
         calibration_datetime,
