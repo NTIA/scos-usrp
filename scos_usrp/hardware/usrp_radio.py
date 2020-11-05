@@ -203,14 +203,9 @@ class USRPRadio(RadioInterface):
         else:
             tune_request = self.uhd.types.TuneRequest(rf_freq, dsp_freq)
             tune_result = self.usrp.set_rx_freq(tune_request)
-            # FIXME: report actual values when available - see note below
             msg = "rf_freq: {}, dsp_freq: {}"
             logger.debug(msg.format(rf_freq, dsp_freq))
 
-        # FIXME: uhd.types.TuneResult doesn't seem to be implemented
-        #        as of uhd 3.13.1.0-rc1
-        # self.lo_freq = tune_result.actual_rf_freq
-        # self.dsp_freq = tune_result.actual_dsp_freq
         self.lo_freq = rf_freq
         self.dsp_freq = dsp_freq
 
