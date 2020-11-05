@@ -3,9 +3,9 @@ import datetime
 from scos_usrp.hardware.calibration import Calibration
 
 
-def easy_gain(sr, f, g):
-    """ Create an easily interpolated value """
-    return (g) + (sr / 1e6) + (f / 1e9)
+def easy_gain(sample_rate, frequency, gain):
+    """ Create an easily interpolated calibration gain value for testing """
+    return (gain) + (sample_rate / 1e6) + (frequency / 1e9)
 
 
 def is_close(a, b, tolerance):
@@ -44,7 +44,7 @@ def create_dummy_calibration(empty_cal=False):
         for sr in sample_rates:
             for f in frequencies:
                 for g in gains:
-                    # Make sure the dicts are feshed out
+                    # initialize dictionaries
                     if sr not in calibration_data.keys():
                         calibration_data[sr] = {}
                     if f not in calibration_data[sr].keys():
@@ -57,16 +57,7 @@ def create_dummy_calibration(empty_cal=False):
                     }
     else:  # Create an empty calibration file
         calibration_data = {  # Empty calibration file data
-            10e6: {
-                1e9: {
-                    40: {},
-                    60: {}
-                },
-                2e9: {
-                    40: {},
-                    60: {}
-                }
-            }
+            10e6: {1e9: {40: {}, 60: {}}, 2e9: {40: {}, 60: {}}}
         }
 
     return Calibration(

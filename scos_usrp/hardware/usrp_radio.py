@@ -96,8 +96,7 @@ class USRPRadio(RadioInterface):
 
         if settings.RUNNING_TESTS or settings.MOCK_RADIO:
             logger.warning("Using mock USRP.")
-            # random = settings.MOCK_RADIO_RANDOM
-            random = False
+            random = settings.MOCK_RADIO_RANDOM
             self.usrp = MockUsrp(randomize_values=random)
             self._is_available = True
         else:
@@ -154,8 +153,6 @@ class USRPRadio(RadioInterface):
                 logger.exception(err)
                 self.sigan_calibration = None
         else:  # If in testing, create our own test files
-            # from scos_usrp import hardware as test_utils
-
             dummy_calibration = create_dummy_calibration()
             self.sensor_calibration = dummy_calibration
             self.sigan_calibration = dummy_calibration
@@ -212,7 +209,6 @@ class USRPRadio(RadioInterface):
 
         # FIXME: uhd.types.TuneResult doesn't seem to be implemented
         #        as of uhd 3.13.1.0-rc1
-        #        Fake it til they make it
         # self.lo_freq = tune_result.actual_rf_freq
         # self.dsp_freq = tune_result.actual_dsp_freq
         self.lo_freq = rf_freq
@@ -329,7 +325,7 @@ class USRPRadio(RadioInterface):
     def acquire_time_domain_samples(
         self, num_samples, num_samples_skip=0, retries=5
     ):  # -> np.ndarray:
-        """Aquire num_samples_skip+num_samples samples and return the last num_samples"""
+        """Acquire num_samples_skip+num_samples samples and return the last num_samples"""
         self._sigan_overload = False
         self._capture_time = None
         # Get the calibration data for the acquisition
@@ -411,6 +407,8 @@ class USRPRadio(RadioInterface):
         if not self.is_available:
             return False
 
+        # arbitrary number of samples to acquire to check health of usrp
+        # keep above ~70k to catch previous errors seen at ~70k
         requested_samples = 100000
 
         try:

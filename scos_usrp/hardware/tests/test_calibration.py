@@ -133,7 +133,7 @@ class TestCalibrationFile:
         )
         cal_data["sensor_uid"] = "SAMPLE_CALIBRATION"
 
-        # Add the frequencie divisions to the calibration data
+        # Add the frequency divisions to the calibration data
         cal_data["calibration_frequency_divisions"] = []
         for div in self.frequency_divisions:
             cal_data["calibration_frequency_divisions"].append(
