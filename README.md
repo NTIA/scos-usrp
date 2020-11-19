@@ -10,7 +10,7 @@ for more information about scos-sensor, especially the section about
 This repository includes many 700MHz band actions in scos_usrp/configs/actions. Action
 classes, RadioInterface, GPSInterface, and signals are used from scos_actions.
 
-For information on adding actions, see the [scos_actions documentation](
+For information on adding actions, see the [scos-actions documentation](
     https://github.com/NTIA/scos-actions/blob/PublicRelease/README.md#adding-actions).
 
 ## 2. Table of Contents
