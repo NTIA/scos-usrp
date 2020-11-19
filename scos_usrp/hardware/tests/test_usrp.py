@@ -3,7 +3,11 @@
 import pytest
 
 from scos_usrp.hardware import radio
-from scos_usrp.hardware.tests.resources.utils import easy_gain, is_close, create_dummy_calibration
+from scos_usrp.hardware.tests.resources.utils import (
+    create_dummy_calibration,
+    easy_gain,
+    is_close,
+)
 
 
 class TestUSRP:
@@ -148,9 +152,9 @@ class TestUSRP:
         self.rx.sensor_calibration = None
 
         # Create some dummy setups to ensure calibration updates
-        sample_rates =  [10e6,   40e6,   1e6,  56e6  ]
-        gain_settings = [40,     60,     0,    60    ]
-        frequencies =   [1000e6, 2000e6, 10e6, 1500e6]
+        sample_rates = [10e6, 40e6, 1e6, 56e6]
+        gain_settings = [40, 60, 0, 60]
+        frequencies = [1000e6, 2000e6, 10e6, 1500e6]
 
         # Run each set
         for i in range(len(sample_rates)):
@@ -231,9 +235,9 @@ class TestUSRP:
         self.rx.sensor_calibration = create_dummy_calibration(empty_cal=True)
 
         # Create some dummy setups to ensure calibration updates
-        sample_rates =  [10e6,   40e6,   1e6,  56e6  ]
-        gain_settings = [40,     60,     0,    60    ]
-        frequencies =   [1000e6, 2000e6, 10e6, 1500e6]
+        sample_rates = [10e6, 40e6, 1e6, 56e6]
+        gain_settings = [40, 60, 0, 60]
+        frequencies = [1000e6, 2000e6, 10e6, 1500e6]
 
         # Run each set
         for i in range(len(sample_rates)):
@@ -252,7 +256,9 @@ class TestUSRP:
 
             # Check the defaulted calibration parameters
             self.check_defaulted_calibration_parameter(
-                "gain_sensor", self.rx.sigan_calibration_data["gain_sigan"], self.rx.sensor_calibration_data["gain_sensor"]
+                "gain_sensor",
+                self.rx.sigan_calibration_data["gain_sigan"],
+                self.rx.sensor_calibration_data["gain_sensor"],
             )
 
         # Reload the dummy sensor calibration in case they're used elsewhere

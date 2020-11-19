@@ -9,7 +9,7 @@ pytz==2020.1
 ruamel.yaml==0.16.10
 ruamel.yaml.clib==0.2.0
 scipy==1.4.1
-scos_actions @ git+${DOCKER_GIT_CREDENTIALS}/NTIA/scos-actions@PublicRelease#egg=scos_actions
+scos_actions @ git+https://github.com/NTIA/scos-actions@PublicRelease#egg=scos_actions
 SigMF @ git+https://github.com/NTIA/SigMF.git@multi-recording-archive#egg=SigMF-0.0.2beta
 six==1.15.0
 sqlparse==0.3.1

@@ -22,6 +22,7 @@ For information on adding actions, see the [scos_actions documentation](
 - [Contact](#7-contact)
 
 ## 3. Overview of Repo Structure
+
 - scos_usrp/configs: This folder contains the yaml files with the parameters used to
   initialize the USRP supported actions and sample calibration files.
 - scos_usrp/discover: This includes the code to read yaml files and make actions
@@ -31,25 +32,26 @@ For information on adding actions, see the [scos_actions documentation](
 
 ## 4. Running in scos-sensor
 
-Requires pip>=18.1 (upgrade using python3 -m pip install --upgrade pip).
+Requires pip>=18.1 (upgrade using `python3 -m pip install --upgrade pip`).
 
 Below are steps to run scos-sensor with the scos-usrp plugin:
 
-1.	Clone scos-sensor: `git clone https://github.com/NTIA/scos-sensor.git`
-1.	Navigate to scos-sensor: `cd scos-sensor`
-1.	If it does not exist, create env file while in the root scos-sensor directory:
-    `cp env.template ./env`
-1.	Make sure the scos-usrp dependency is in requirements.txt in scos-sensor/src
-    folder. If you are using a different branch than master, change master in the
-    following line to the branch you are using:
-    `scos_usrp @ git+https://github.com/NTIA/scos-usrp@master#egg=scos_usrp.`
-1.	Make sure `BASE_IMAGE` is set to `BASE_IMAGE=smsntia/uhd_b2xx_py3` in env file.
-1.	Get environment variables: `source ./env`
-1.	Build and start containers: `docker-compose up -d --build --force-recreate`
+1. Clone scos-sensor: `git clone https://github.com/NTIA/scos-sensor.git`
+1. Navigate to scos-sensor: `cd scos-sensor`
+1. If it does not exist, create env file while in the root scos-sensor directory:
+   `cp env.template ./env`
+1. Make sure the scos-usrp dependency is in requirements.txt in scos-sensor/src
+   folder. If you are using a different branch than master, change master in the
+   following line to the branch you are using:
+   `scos_usrp @ git+https://github.com/NTIA/scos-usrp@master#egg=scos_usrp.`
+1. Make sure `BASE_IMAGE` is set to `BASE_IMAGE=smsntia/uhd_b2xx_py3` in env file.
+1. Get environment variables: `source ./env`
+1. Build and start containers: `docker-compose up -d --build --force-recreate`
 
 ## 5. Development
 
 ### Requirements and Configuration
+
 Requires pip>=18.1 (upgrade using `python3 -m pip install --upgrade pip`) and
 python>=3.6.
 
@@ -65,6 +67,7 @@ python3 -m pip install -r requirements-dev.txt
 ```
 
 ### Running Tests
+
 Since the UHD drivers are required, a docker container is used for testing. [Install
 Docker](https://docs.docker.com/get-docker/).
 
