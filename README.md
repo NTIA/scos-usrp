@@ -1,27 +1,30 @@
-# 1. Title: NTIA/ITS SCOS USRP Plugin
+# Title: NTIA/ITS SCOS USRP Plugin
 
-This repository is a plugin to add support for the Ettus B2xx line of signal analyzers
-to scos-sensor. See the [scos-sensor documentation](
-    https://github.com/NTIA/scos-sensor/blob/SMBWTB475_refactor_radio_interface/README.md)
-for more information about scos-sensor, especially the section about
-[Actions and Hardware Support](
-    https://github.com/NTIA/scos-sensor/blob/SMBWTB475_refactor_radio_interface/DEVELOPING.md#actions-and-hardware-support).
+This repository is a scos-sensor plugin to add support for the Ettus B2xx line of
+signal analyzers. See the [scos-sensor README](
+https://github.com/NTIA/scos-sensor/blob/SMBWTB475_refactor_radio_interface/README.md)
+for more information about scos-sensor, especially the [Architecture](
+https://github.com/NTIA/scos-sensor/blob/SMBWTB475_refactor_radio_interface/README.md#3-architecture
+) and the [Actions and Hardware Support](
+https://github.com/NTIA/scos-sensor/blob/SMBWTB475_refactor_radio_interface/README.md#7-actions-and-hardware-support
+) sections which explain the scos-sensor plugin architecture.
 
-This repository includes many 700MHz band actions in scos_usrp/configs/actions. Action
-classes, RadioInterface, GPSInterface, and signals are used from scos_actions.
+This repository includes many 700MHz band actions in [scos_usrp/configs/actions](
+scos_usrp/configs/actions). Action classes, RadioInterface, GPSInterface, and signals
+are used from [scos_actions](https://github.com/NTIA/scos-actions).
 
-For information on adding actions, see the [scos-actions documentation](
-    https://github.com/NTIA/scos-actions/blob/PublicRelease/README.md#adding-actions).
+For information on adding actions, see the [scos_actions documentation](
+https://github.com/NTIA/scos-actions/tree/readme_updates#adding-actions).
 
-## 2. Table of Contents
+## Table of Contents
 
-- [Overview of Repo Structure](#3-overview-of-repo-structure)
-- [Running in scos-sensor](#4-running-in-scos-sensor)
-- [Development](#5-development)
-- [License](#6-license)
-- [Contact](#7-contact)
+- [Overview of Repo Structure](#1-overview-of-repo-structure)
+- [Running in scos-sensor](#2-running-in-scos-sensor)
+- [Development](#3-development)
+- [License](#4-license)
+- [Contact](#5-contact)
 
-## 3. Overview of Repo Structure
+## 1. Overview of Repo Structure
 
 - scos_usrp/configs: This folder contains the yaml files with the parameters used to
   initialize the USRP supported actions and sample calibration files.
@@ -30,7 +33,7 @@ For information on adding actions, see the [scos-actions documentation](
 - scos_usrp/hardware: This includes the USRP implementation of the radio interface and
   GPS interface. It also includes supporting calibration and test code.
 
-## 4. Running in scos-sensor
+## 2. Running in scos-sensor
 
 Requires pip>=18.1 (upgrade using `python3 -m pip install --upgrade pip`).
 
@@ -40,7 +43,7 @@ Below are steps to run scos-sensor with the scos-usrp plugin:
 1. Navigate to scos-sensor: `cd scos-sensor`
 1. If it does not exist, create env file while in the root scos-sensor directory:
    `cp env.template ./env`
-1. Make sure the scos-usrp dependency is in requirements.txt in scos-sensor/src
+1. Make sure the `scos_usrp` dependency is in `requirements.txt` in `scos-sensor/src`
    folder. If you are using a different branch than master, change master in the
    following line to the branch you are using:
    `scos_usrp @ git+https://github.com/NTIA/scos-usrp@master#egg=scos_usrp.`
@@ -48,7 +51,7 @@ Below are steps to run scos-sensor with the scos-usrp plugin:
 1. Get environment variables: `source ./env`
 1. Build and start containers: `docker-compose up -d --build --force-recreate`
 
-## 5. Development
+## 3. Development
 
 ### Requirements and Configuration
 
@@ -56,8 +59,9 @@ Requires pip>=18.1 (upgrade using `python3 -m pip install --upgrade pip`) and
 python>=3.6.
 
 It is highly recommended that you first initialize a virtual development environment
-using a tool such a conda or venv. The following commands create a virtual environment
-using venv and install the required dependencies for development and testing.
+using a tool such a `conda` or `venv`. The following commands create a virtual
+environment using `venv` and install the required dependencies for development and
+testing.
 
 ```python
 python3 -m venv ./venv
@@ -103,13 +107,13 @@ pre-commit run --all-files
 
 In addition to Black and isort, various other pre-commit tools are enabled including
 markdownlint. Markdownlint will show an error message if it detects any style issues in
-markdown files. See .pre-commit-config.yaml for the list of pre-commit tools enabled
-for this repository.
+markdown files. See [.pre-commit-config.yaml](.pre-commit-config.yaml) for the list of
+pre-commit tools enabled for this repository.
 
-## 6. License
+## 4. License
 
 See [LICENSE](LICENSE.md).
 
-## 7. Contact
+## 5. Contact
 
 For technical questions about scos-usrp, contact Justin Haze, jhaze@ntia.gov
