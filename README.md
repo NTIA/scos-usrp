@@ -1,4 +1,4 @@
-# 1. Title: NTIA/ITS SCOS USRP Plugin
+# Title: NTIA/ITS SCOS USRP Plugin
 
 This repository is a plugin to add support for the Ettus B2xx line of signal analyzers
 to scos-sensor. See the [scos-sensor documentation](
@@ -13,15 +13,15 @@ classes, RadioInterface, GPSInterface, and signals are used from scos_actions.
 For information on adding actions, see the [scos-actions documentation](
     https://github.com/NTIA/scos-actions/blob/PublicRelease/README.md#adding-actions).
 
-## 2. Table of Contents
+## Table of Contents
 
-- [Overview of Repo Structure](#3-overview-of-repo-structure)
-- [Running in scos-sensor](#4-running-in-scos-sensor)
-- [Development](#5-development)
-- [License](#6-license)
-- [Contact](#7-contact)
+- [Overview of Repo Structure](#overview-of-repo-structure)
+- [Running in scos-sensor](#running-in-scos-sensor)
+- [Development](#development)
+- [License](#license)
+- [Contact](#contact)
 
-## 3. Overview of Repo Structure
+## Overview of Repo Structure
 
 - scos_usrp/configs: This folder contains the yaml files with the parameters used to
   initialize the USRP supported actions and sample calibration files.
@@ -30,7 +30,7 @@ For information on adding actions, see the [scos-actions documentation](
 - scos_usrp/hardware: This includes the USRP implementation of the radio interface and
   GPS interface. It also includes supporting calibration and test code.
 
-## 4. Running in scos-sensor
+## Running in scos-sensor
 
 Requires pip>=18.1 (upgrade using `python3 -m pip install --upgrade pip`).
 
@@ -48,7 +48,7 @@ Below are steps to run scos-sensor with the scos-usrp plugin:
 1. Get environment variables: `source ./env`
 1. Build and start containers: `docker-compose up -d --build --force-recreate`
 
-## 5. Development
+## Development
 
 ### Requirements and Configuration
 
@@ -106,10 +106,10 @@ markdownlint. Markdownlint will show an error message if it detects any style is
 markdown files. See .pre-commit-config.yaml for the list of pre-commit tools enabled
 for this repository.
 
-## 6. License
+## License
 
 See [LICENSE](LICENSE.md).
 
-## 7. Contact
+## Contact
 
 For technical questions about scos-usrp, contact Justin Haze, jhaze@ntia.gov
