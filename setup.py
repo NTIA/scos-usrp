@@ -2,7 +2,7 @@ import os
 
 import setuptools
 
-with open("README.md", "r") as fh:
+with open("README.md", "r", encoding="utf8") as fh:
     long_description = fh.read()
 
 repo_root = os.path.dirname(os.path.realpath(__file__))

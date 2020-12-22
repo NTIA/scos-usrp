@@ -10,7 +10,6 @@ CONFIG_DIR = path.join(path.dirname(path.abspath(__file__)), "configs")
 ACTION_DEFINITIONS_DIR = path.join(CONFIG_DIR, "actions")
 
 
-# SENSOR_CALIBRATION_FILE = path.join(CONFIG_DIR, "sensor_calibration.json.example")
 if not settings.configured or not hasattr(settings, "SIGAN_CALIBRATION_FILE"):
     SIGAN_CALIBRATION_FILE = path.join(CONFIG_DIR, "sigan_calibration.json.example")
 else:

@@ -18,7 +18,7 @@ class MockUsrp(object):
         self.gain = 0
 
         # Simulate returning less than the requested number of samples from
-        # self.recv_num_samps
+        # recv_num_samps method
         self.times_to_fail_recv = 0
         self.times_failed_recv = 0
 

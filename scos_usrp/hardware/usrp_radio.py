@@ -51,6 +51,7 @@ DEFAULT_SENSOR_CALIBRATION = {
 class USRPRadio(RadioInterface):
     @property
     def last_calibration_time(self):
+        """ Returns the last calibration time from calibration data. """
         if self.sensor_calibration:
             return utils.convert_string_to_millisecond_iso_format(
                 self.sensor_calibration.calibration_datetime
@@ -59,6 +60,7 @@ class USRPRadio(RadioInterface):
 
     @property
     def overload(self):
+        """ Returns True if overload occurred, otherwise returns False. """
         return self._sigan_overload or self._sensor_overload
 
     # Define thresholds for determining ADC overload for the sigan
@@ -96,8 +98,7 @@ class USRPRadio(RadioInterface):
 
         if settings.RUNNING_TESTS or settings.MOCK_RADIO:
             logger.warning("Using mock USRP.")
-            # random = settings.MOCK_RADIO_RANDOM
-            random = False
+            random = settings.MOCK_RADIO_RANDOM
             self.usrp = MockUsrp(randomize_values=random)
             self._is_available = True
         else:
@@ -130,9 +131,11 @@ class USRPRadio(RadioInterface):
 
     @property
     def is_available(self):
+        """ Returns True if initialized and ready to make measurements, otherwise returns False. """
         return self._is_available
 
     def get_calibration(self, sensor_cal_file, sigan_cal_file):
+        """ Get calibration data from sensor_cal_file and sigan_cal_file. """
         # Set the default calibration values
         self.sensor_calibration_data = DEFAULT_SENSOR_CALIBRATION.copy()
         self.sigan_calibration_data = DEFAULT_SIGAN_CALIBRATION.copy()
@@ -154,22 +157,25 @@ class USRPRadio(RadioInterface):
                 logger.exception(err)
                 self.sigan_calibration = None
         else:  # If in testing, create our own test files
-            # from scos_usrp import hardware as test_utils
-
             dummy_calibration = create_dummy_calibration()
             self.sensor_calibration = dummy_calibration
             self.sigan_calibration = dummy_calibration
 
     @property
-    def sample_rate(self):  # -> float:
+    def sample_rate(self):
+        """ Returns the currently configured sample rate in samples per second. """
         return self.usrp.get_rx_rate()
 
     @sample_rate.setter
     def sample_rate(self, rate):
-        """Sets the sample_rate and the clock_rate based on the sample_rate"""
+        """Sets the sample_rate and the clock_rate based on the sample_rate
+
+        :type sample_rate: float
+        :param sample_rate: Sample rate in samples per second
+        """
         self.usrp.set_rx_rate(rate)
-        fs_MHz = self.sample_rate / 1e6
-        logger.debug("set USRP sample rate: {:.2f} MS/s".format(fs_MHz))
+        fs_MSps = self.sample_rate / 1e6
+        logger.debug("set USRP sample rate: {:.2f} MSps".format(fs_MSps))
         # Set the clock rate based on calibration
         if self.sigan_calibration is not None:
             clock_rate = self.sigan_calibration.get_clock_rate(rate)
@@ -182,48 +188,68 @@ class USRPRadio(RadioInterface):
         self.clock_rate = clock_rate
 
     @property
-    def clock_rate(self):  # -> float:
+    def clock_rate(self):
+        """ Returns the currently configured clock rate in hertz. """
         return self.usrp.get_master_clock_rate()
 
     @clock_rate.setter
     def clock_rate(self, rate):
+        """ Sets the signal analyzer clock rate.
+
+        :type rate: float
+        :param rate: Clock rate in hertz
+        """
         self.usrp.set_master_clock_rate(rate)
         clk_MHz = self.clock_rate / 1e6
         logger.debug("set USRP clock rate: {:.2f} MHz".format(clk_MHz))
 
     @property
-    def frequency(self):  # -> float:
+    def frequency(self):
+        """ Returns the currently configured center frequency in hertz. """
         return self.usrp.get_rx_freq()
 
     @frequency.setter
     def frequency(self, freq):
+        """ Sets the signal analyzer frequency.
+
+        :type freq: float
+        :param freq: Frequency in hertz
+        """
         self.tune_frequency(freq)
 
     def tune_frequency(self, rf_freq, dsp_freq=0):
+        """ Tunes the signal analyzer as close as possible to the desired frequency.
+
+        :type rf_freq: float
+        :param rf_freq: Desired frequency in hertz
+
+        :type dsp_freq: float
+        :param dsp_freq: LO offset frequency in hertz
+        """
         if isinstance(self.usrp, MockUsrp):
             tune_result = self.usrp.set_rx_freq(rf_freq, dsp_freq)
             logger.debug(tune_result)
         else:
             tune_request = self.uhd.types.TuneRequest(rf_freq, dsp_freq)
             tune_result = self.usrp.set_rx_freq(tune_request)
-            # FIXME: report actual values when available - see note below
             msg = "rf_freq: {}, dsp_freq: {}"
             logger.debug(msg.format(rf_freq, dsp_freq))
 
-        # FIXME: uhd.types.TuneResult doesn't seem to be implemented
-        #        as of uhd 3.13.1.0-rc1
-        #        Fake it til they make it
-        # self.lo_freq = tune_result.actual_rf_freq
-        # self.dsp_freq = tune_result.actual_dsp_freq
         self.lo_freq = rf_freq
         self.dsp_freq = dsp_freq
 
     @property
-    def gain(self):  # -> float:
+    def gain(self):
+        """ Returns the currently configured gain setting in dB. """
         return self.usrp.get_rx_gain()
 
     @gain.setter
     def gain(self, gain):
+        """ Sets the signal analyzer gain setting.
+
+        :type gain: float
+        :param gain: Gain in dB
+        """
         if gain not in VALID_GAINS:
             err = "Requested invalid gain {}. ".format(gain)
             err += "Choose one of {!r}.".format(VALID_GAINS)
@@ -285,6 +311,7 @@ class USRPRadio(RadioInterface):
             )
 
     def create_calibration_annotation(self):
+        """ Creates the SigMF calibration annotation. """
         annotation_md = {
             "ntia-core:annotation_type": "CalibrationAnnotation",
             "ntia-sensor:gain_sigan": self.sigan_calibration_data["gain_sigan"],
@@ -308,10 +335,8 @@ class USRPRadio(RadioInterface):
         }
         return annotation_md
 
-    def configure(self, action_name):
-        pass
-
     def check_sensor_overload(self, data):
+        """ Check for sensor overload in the measurement data. """
         measured_data = data.astype(np.complex64)
 
         time_domain_avg_power = 10 * np.log10(np.mean(np.abs(measured_data) ** 2))
@@ -326,10 +351,27 @@ class USRPRadio(RadioInterface):
                 > self.sensor_calibration_data["1db_compression_sensor"]
             )
 
-    def acquire_time_domain_samples(
-        self, num_samples, num_samples_skip=0, retries=5
-    ):  # -> np.ndarray:
-        """Aquire num_samples_skip+num_samples samples and return the last num_samples"""
+    def acquire_time_domain_samples(self, num_samples, num_samples_skip=0, retries=5):
+        """Acquire num_samples_skip+num_samples samples and return the last num_samples
+
+        :type num_samples: int
+        :param num_samples: Number of samples to acquire
+
+        :type num_samples_skip: int
+        :param num_samples_skip: Skip samples to allow signal analyzer DC offset and IQ imbalance algorithms to take effect
+
+        :type retries: int
+        :param retries: The number of retries to attempt when failing to acquire samples
+
+        :rtype: dictionary containing the following:
+            data - (list) measurement data
+            overload - (boolean) True if overload occurred, otherwise False
+            frequency - (float) Measurement center frequency in hertz
+            gain - (float) Measurement signal analyzer gain setting in dB
+            sample_rate - (float) Measurement sample rate in samples per second
+            capture_time - (string) Measurement capture time
+            calibration_annotation - (dict) SigMF calibration annotation
+    """
         self._sigan_overload = False
         self._capture_time = None
         # Get the calibration data for the acquisition
@@ -406,11 +448,14 @@ class USRPRadio(RadioInterface):
 
     @property
     def healthy(self):
+        """ Check for ability to acquire samples from the signal analyzer. """
         logger.debug("Performing USRP health check")
 
         if not self.is_available:
             return False
 
+        # arbitrary number of samples to acquire to check health of usrp
+        # keep above ~70k to catch previous errors seen at ~70k
         requested_samples = 100000
 
         try:
