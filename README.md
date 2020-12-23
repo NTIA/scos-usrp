@@ -14,7 +14,7 @@ scos_usrp/configs/actions). Action classes, RadioInterface, GPSInterface, and si
 are used from [scos_actions](https://github.com/NTIA/scos-actions).
 
 For information on adding actions, see the [scos_actions documentation](
-https://github.com/NTIA/scos-actions/tree/readme_updates#adding-actions).
+https://github.com/NTIA/scos-actions/blob/master/README.md#adding-actions).
 
 ## Table of Contents
 
