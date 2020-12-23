@@ -1,4 +1,4 @@
-# Title: NTIA/ITS SCOS USRP Plugin
+# NTIA/ITS SCOS USRP Plugin
 
 This repository is a scos-sensor plugin to add support for the Ettus B2xx line of
 signal analyzers. See the [scos-sensor README](
