@@ -802,7 +802,7 @@ class USRPRadio(RadioInterface):
         samps_per_buff = tx_stream.get_max_num_samps()
 
         ## create the CW raw IQ    
-        data = self.create_CW_IQdata(cw_frequency, self.samp_rate, samps_per_buff)
+        data = self.create_CW_IQdata(cw_frequency, self.sample_rate, samps_per_buff)
         if data == -1:
             logger.error("bad samp_rate to cw_frequency ratio, will cause under-runs")
             raise RuntimeError("bad samp_rate to cw_frequency ratio")
