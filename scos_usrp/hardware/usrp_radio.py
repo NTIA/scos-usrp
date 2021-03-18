@@ -416,13 +416,17 @@ class USRPRadio(RadioInterface):
 
         buff_size = int(samples_per_period * blocks)
 
+        msg = "samples per period {}, periods {}, buffer size {}."
+        logger.debug(msg.format(samples_per_period, blocks, buff_size))
+
         if (buff_size < 400): ## bad samp_rate to cw_frequency ratio, will cause under-runs
-            return -1
+            logger.error("bad samp_rate to cw_frequency ratio, will cause under-runs. buff size should be greater than 400")
+            raise RuntimeError("bad samp_rate to cw_frequency ratio")
         
         T = 1 / samp_rate
         ## create the buffer
         tt = np.linspace(0, buff_size / samp_rate - T, buff_size)
-        print(tt[:10])
+        
         y = np.zeros(buff_size, dtype=np.complex64)
         y.real = np.cos(2*np.pi*cw_frequency * tt)
         y.imag = np.sin(2*np.pi*cw_frequency * tt)
@@ -803,14 +807,8 @@ class USRPRadio(RadioInterface):
 
         ## create the CW raw IQ    
         data = self.create_CW_IQdata(cw_frequency, self.sample_rate, samps_per_buff)
-        if data == -1:
-            logger.error("bad samp_rate to cw_frequency ratio, will cause under-runs")
-            raise RuntimeError("bad samp_rate to cw_frequency ratio")
         #np.reshape(data, (len(data),1))
 
-        ## build buffer
-        msg = "max_send_buffer_size {} pn_sample_size {}."
-        logger.debug(msg.format(samps_per_buff, len(data)))
 
         ## set up metadata
         tx_md = self.uhd.types.TXMetadata()
