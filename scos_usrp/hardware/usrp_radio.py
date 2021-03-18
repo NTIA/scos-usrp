@@ -344,7 +344,7 @@ class USRPRadio(RadioInterface):
             )
 
     ## for PN transmitter
-    def create_IQdata(self, seed, sampspersymbol):
+    def create_PN_IQdata(self, seed, sampspersymbol):
         #Variable initiation
         N = (2**9) - 1
         x1 = np.zeros(N+1)
@@ -398,6 +398,37 @@ class USRPRadio(RadioInterface):
         #     sp = spacing
         #     data = np.append(data, np.zeros(sp))
         return data_resized
+
+    ## creates complex CW wave for CW transmit
+    def create_CW_IQdata(self, cw_frequency, samp_rate, max_num_samps):
+        samples_per_period = samp_rate / cw_frequency
+
+        blocks = max_num_samps // samples_per_period
+
+        ## find the biggest buffer that both: fits into max_num_samps, and finishes on a whole period.
+        while (True):
+            if blocks <= 0:
+                break
+            elif (blocks * samples_per_period) % 1 == 0:
+                break
+            else:
+                blocks -= 1
+
+        buff_size = int(samples_per_period * blocks)
+
+        if (buff_size < 400): ## bad samp_rate to cw_frequency ratio, will cause under-runs
+            return -1
+        
+        T = 1 / samp_rate
+        ## create the buffer
+        tt = np.linspace(0, buff_size / samp_rate - T, buff_size)
+        print(tt[:10])
+        y = np.zeros(buff_size, dtype=np.complex64)
+        y.real = np.cos(2*np.pi*cw_frequency * tt)
+        y.imag = np.sin(2*np.pi*cw_frequency * tt)
+
+        return y
+
 
 
     def acquire_time_domain_samples(
@@ -626,7 +657,7 @@ class USRPRadio(RadioInterface):
         # """TX samples based on input arguments"""
         #save IQdata
 
-        data = self.create_IQdata(seed, sampspersymbol)
+        data = self.create_PN_IQdata(seed, sampspersymbol)
         np.reshape(data, (len(data),1))
 
         ## redo for scos version of uhd
@@ -748,3 +779,53 @@ class USRPRadio(RadioInterface):
         #     logger.debug("TX over")
 
         # return data
+
+    ### Max's CW transmit code below
+    def transmit_cw(self, cw_frequency, duration_ms):
+        # """TX samples based on input arguments"""
+
+        ## redo for scos version of uhd
+        channel = 0 
+        #self.usrp.set_clock_source("gpsdo", 0)
+        #self.usrp.set_time_source("gpsdo", 0)
+        self.usrp.set_tx_rate(self.sample_rate, channel)
+        self.usrp.set_tx_freq(self.uhd.types.TuneRequest(self.frequency), channel)
+        self.usrp.set_tx_gain(self.gain, channel)
+        self.usrp.set_tx_antenna("TX/RX", 0)
+        ## sleep for a quarter second after setup
+        time.sleep(0.25)
+
+        ## create the tx_stream
+        stream_args = self.uhd.usrp.StreamArgs("fc32", "sc16")
+        stream_args.channels = (0,)
+        tx_stream = self.usrp.get_tx_stream(stream_args)
+        samps_per_buff = tx_stream.get_max_num_samps()
+
+        ## create the CW raw IQ    
+        data = self.create_CW_IQdata(cw_frequency, self.samp_rate, samps_per_buff)
+        if data == -1:
+            logger.error("bad samp_rate to cw_frequency ratio, will cause under-runs")
+            raise RuntimeError("bad samp_rate to cw_frequency ratio")
+        #np.reshape(data, (len(data),1))
+
+        ## build buffer
+        msg = "max_send_buffer_size {} pn_sample_size {}."
+        logger.debug(msg.format(samps_per_buff, len(data)))
+
+        ## set up metadata
+        tx_md = self.uhd.types.TXMetadata()
+        tx_md.start_of_burst=True ## is true when it is the first packet in a chain
+        tx_md.end_of_burst=False ## is true when it's the last packet in a chain
+        tx_md.has_time_spec=False 
+        
+        num_buffs = int((duration_ms / 1000) * self.sample_rate // samps_per_buff)
+        logger.debug("num buffs to send, {}".format(num_buffs))
+        for i in range(num_buffs-1):
+            samps_sent = tx_stream.send(data, tx_md)
+            tx_md.start_of_burst=False
+            # logger.debug(".")
+        tx_md.end_of_burst=True
+        samps_sent = tx_stream.send(data, tx_md)
+        logger.debug("TX over")
+
+        return data
