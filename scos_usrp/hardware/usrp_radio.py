@@ -24,6 +24,7 @@ from scos_usrp.hardware.mocks.usrp_block import MockUsrp
 from scos_usrp.hardware.tests.resources.utils import create_dummy_calibration
 
 logger = logging.getLogger(__name__)
+logger.debug(f"USRP_CONNECTION_ARGS = {settings.USRP_CONNECTION_ARGS}")
 
 # Testing determined these gain values provide a good mix of sensitivity and
 # dynamic range performance
@@ -110,7 +111,10 @@ class USRPRadio(RadioInterface):
                 logger.warning("uhd not available - disabling radio")
                 return False
 
-            usrp_args = "type=b200"  # find any b-series device
+            usrp_args = (
+                f"type=b200,{settings.USRP_CONNECTION_ARGS}"  # find any b-series device
+            )
+            logger.debug(f"usrp_args = {usrp_args}")
 
             try:
                 self.usrp = self.uhd.usrp.MultiUSRP(usrp_args)
