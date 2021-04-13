@@ -2,11 +2,11 @@
 
 This repository is a scos-sensor plugin to add support for the Ettus B2xx line of
 signal analyzers. See the [scos-sensor README](
-https://github.com/NTIA/scos-sensor/blob/SMBWTB475_refactor_radio_interface/README.md)
+https://github.com/NTIA/scos-sensor/blob/master/README.md)
 for more information about scos-sensor, especially the [Architecture](
-https://github.com/NTIA/scos-sensor/blob/SMBWTB475_refactor_radio_interface/README.md#architecture
+https://github.com/NTIA/scos-sensor/blob/master/README.md#architecture
 ) and the [Actions and Hardware Support](
-https://github.com/NTIA/scos-sensor/blob/SMBWTB475_refactor_radio_interface/README.md#actions-and-hardware-support
+https://github.com/NTIA/scos-sensor/blob/master/README.md#actions-and-hardware-support
 ) sections which explain the scos-sensor plugin architecture.
 
 This repository includes many 700MHz band actions in [scos_usrp/configs/actions](
