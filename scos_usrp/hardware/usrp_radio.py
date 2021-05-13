@@ -448,6 +448,8 @@ class USRPRadio(RadioInterface):
         db_gain = self.sensor_calibration_data["gain_sensor"]
         linear_gain = 10 ** (db_gain / 20.0)
 
+        logger.debug("dB and linear gain from cal {}, {}".format(linear_gain, db_gain))
+
         # Try to acquire the samples
         max_retries = retries
         while True:
@@ -794,6 +796,7 @@ class USRPRadio(RadioInterface):
         #self.usrp.set_time_source("gpsdo", 0)
         self.usrp.set_tx_rate(self.sample_rate, channel)
         self.usrp.set_tx_freq(self.uhd.types.TuneRequest(self.frequency), channel)
+        logging.debug("MAXs debug, self.gain is {}".format(self.gain))
         self.usrp.set_tx_gain(self.gain, channel)
         self.usrp.set_tx_antenna("TX/RX", 0)
         ## sleep for a quarter second after setup
