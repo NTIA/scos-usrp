@@ -796,12 +796,12 @@ class USRPRadio(RadioInterface):
         #self.usrp.set_time_source("gpsdo", 0)
         self.usrp.set_tx_rate(self.sample_rate, channel)
         self.usrp.set_tx_freq(self.uhd.types.TuneRequest(self.frequency), channel)
-        logging.debug("MAXs debug, self.gain is {}".format(self.gain))
+        logger.debug("MAXs debug, self.gain is {}".format(self.gain))
         self.usrp.set_tx_gain(self.gain, channel)
         self.usrp.set_tx_antenna("TX/RX", 0)
         ## sleep for a quarter second after setup
         time.sleep(0.25)
-
+        logger.debug("MAXs 2ND debug, self.gain is {}".format(self.gain))
         ## create the tx_stream
         stream_args = self.uhd.usrp.StreamArgs("fc32", "sc16")
         stream_args.channels = (0,)
