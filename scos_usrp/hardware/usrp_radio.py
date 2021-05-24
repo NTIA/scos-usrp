@@ -438,7 +438,7 @@ class USRPRadio(RadioInterface):
 
 
     def acquire_time_domain_samples(
-        self, num_samples, num_samples_skip=0, retries=5
+        self, num_samples, num_samples_skip=0, retries=5, subdev="A:A"
     ):  # -> np.ndarray:
         """Aquire num_samples_skip+num_samples samples and return the last num_samples"""
         self._sigan_overload = False
@@ -463,7 +463,7 @@ class USRPRadio(RadioInterface):
 
             ## Max added the following 4 lines for TM acquisition
             ## selecting A: TX/RX port as receive port
-            self.usrp.set_rx_subdev_spec(SubdevSpec("A:B"), 0)
+            self.usrp.set_rx_subdev_spec(SubdevSpec(subdev), 0)
             self.usrp.set_rx_antenna("TX/RX", 0)
             ## sleep for a second after setup
             time.sleep(0.25)
