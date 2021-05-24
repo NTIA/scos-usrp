@@ -461,6 +461,7 @@ class USRPRadio(RadioInterface):
 
             ## Max added the following 4 lines for TM acquisition
             ## selecting A: TX/RX port as receive port
+            self.usrp.set_rx_subdev_spec("A:B", 0)
             self.usrp.set_rx_antenna("TX/RX", 0)
             ## sleep for a second after setup
             time.sleep(0.25)
