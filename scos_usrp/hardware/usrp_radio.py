@@ -26,6 +26,8 @@ from scos_usrp.hardware import calibration
 from scos_usrp.hardware.mocks.usrp_block import MockUsrp
 from scos_usrp.hardware.tests.resources.utils import create_dummy_calibration
 
+from uhd.usrp import SubdevSpec
+
 logger = logging.getLogger(__name__)
 
 # Testing determined these gain values provide a good mix of sensitivity and
@@ -461,7 +463,7 @@ class USRPRadio(RadioInterface):
 
             ## Max added the following 4 lines for TM acquisition
             ## selecting A: TX/RX port as receive port
-            self.usrp.set_rx_subdev_spec(self.usrp.SubdevSpec("A:B"), 0)
+            self.usrp.set_rx_subdev_spec(SubdevSpec("A:B"), 0)
             self.usrp.set_rx_antenna("TX/RX", 0)
             ## sleep for a second after setup
             time.sleep(0.25)
