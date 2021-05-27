@@ -791,7 +791,7 @@ class USRPRadio(RadioInterface):
         # return data
 
     ### Max's CW transmit code below
-    def transmit_cw(self, cw_frequency, duration_ms, params_gain):
+    def transmit_cw(self, cw_frequency, duration_ms, params_gain, subdev):
         # """TX samples based on input arguments"""
 
         ## redo for scos version of uhd
@@ -803,6 +803,8 @@ class USRPRadio(RadioInterface):
         logger.debug("MAXs debug, self.gain is {} and params_gain is {}".format(self.gain, params_gain))
         self.usrp.set_tx_gain(params_gain, channel)
         self.usrp.set_tx_antenna("TX/RX", 0)
+        logger.debug("subdev is set to {}".format(subdev))
+        self.usrp.set_tx_subdev_spec(SubdevSpec(subdev), 0)
         ## sleep for a quarter second after setup
         time.sleep(0.25)
 
