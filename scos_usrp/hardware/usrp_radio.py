@@ -145,6 +145,44 @@ class USRPRadio(RadioInterface):
             except Exception as err:
                 logger.exception(err)
                 return False
+    
+    def reconnect(self):
+        if self._is_available:
+            return True
+
+        if settings.RUNNING_TESTS or settings.MOCK_RADIO:
+            logger.warning("Using mock USRP.")
+            # random = settings.MOCK_RADIO_RANDOM
+            random = False
+            self.usrp = MockUsrp(randomize_values=random)
+            self._is_available = True
+        else:
+            try:
+                import uhd
+
+                self.uhd = uhd
+            except ImportError:
+                logger.warning("uhd not available - disabling radio")
+                return False
+
+            usrp_args = "type=b200"  # find any b-series device
+
+            try:
+                self.usrp = self.uhd.usrp.MultiUSRP(usrp_args)
+            except RuntimeError:
+                err = "No device found matching search parameters {!r}\n"
+                err = err.format(usrp_args)
+                raise RuntimeError(err)
+
+            logger.debug("Using the following USRP:")
+            logger.debug(self.usrp.get_pp_string())
+
+            try:
+                self._is_available = True
+                return True
+            except Exception as err:
+                logger.exception(err)
+                return False
 
     @property
     def is_available(self):
