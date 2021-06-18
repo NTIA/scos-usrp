@@ -438,7 +438,10 @@ class USRPRadio(RadioInterface):
         return y
 
     def reconnect(self):
-        del self.usrp
+        try:
+            del self.usrp
+        except AttributeError:
+            logger.debug("already deleted usrp, trying again to reload Multiusrp")
 
         os.system('uhd_image_loader --args type=b200')
         time.sleep(1)
