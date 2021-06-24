@@ -458,6 +458,14 @@ class USRPRadio(RadioInterface):
         logger.debug("Using the following USRP:")
         logger.debug(self.usrp.get_pp_string())
 
+    def disconnect(self):
+        try:
+            del self.usrp
+        except AttributeError:
+            logger.debug("already deleted usrp, trying again to reload Multiusrp")
+
+        logger.debug("USRP disconnected; error may arrise.")
+
     def acquire_time_domain_samples(
         self, num_samples, num_samples_skip=0, retries=5, subdev="A:A"
     ):  # -> np.ndarray:
