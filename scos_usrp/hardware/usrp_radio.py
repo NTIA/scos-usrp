@@ -865,3 +865,82 @@ class USRPRadio(RadioInterface):
         logger.debug("TX over")
 
         return data
+    
+    ### Max's CW transmit code below
+    def transmit_PN_v2(self, seed, sampspersymbol, duration_ms, params_gain, subdev):
+        # """TX samples based on input arguments"""
+
+        data = self.create_PN_IQdata(seed, sampspersymbol)
+        np.reshape(data, (len(data), 1))
+
+        ## redo for scos version of uhd
+        channel = 0 
+        #self.usrp.set_clock_source("gpsdo", 0)
+        #self.usrp.set_time_source("gpsdo", 0)
+        self.usrp.set_tx_rate(self.sample_rate, channel)
+        self.usrp.set_tx_freq(self.uhd.types.TuneRequest(self.frequency), channel)
+        logger.debug("MAXs debug, self.gain is {} and params_gain is {}".format(self.gain, params_gain))
+        self.usrp.set_tx_gain(params_gain, channel)
+        self.usrp.set_tx_antenna("TX/RX", 0)
+        logger.debug("subdev is set to {}".format(subdev))
+        self.usrp.set_tx_subdev_spec(SubdevSpec(subdev), 0)
+        ## sleep for a quarter second after setup
+        time.sleep(0.25)
+
+        ## create the tx_stream
+        stream_args = self.uhd.usrp.StreamArgs("fc32", "sc16")
+        stream_args.channels = (0,)
+        tx_stream = self.usrp.get_tx_stream(stream_args)
+        samps_per_buff = tx_stream.get_max_num_samps()
+
+        ## build buffer
+        msg = "max_send_buffer_size {} pn_sample_size {}."
+        logger.debug(msg.format(samps_per_buff, len(data)))
+
+        ## set up metadata
+        tx_md = self.uhd.types.TXMetadata()
+        tx_md.start_of_burst=True ## is true when it is the first packet in a chain
+        tx_md.end_of_burst=False ## is true when it's the last packet in a chain
+        tx_md.has_time_spec=False 
+
+        if sampspersymbol in (1,2,4):
+            big_buff = np.empty(samps_per_buff)
+            for i in range(samps_per_buff):
+                big_buff[i] = data[i%len(data)]
+            
+            num_buffs = int((duration_ms / 1000) * self.sample_rate // samps_per_buff)
+            logger.debug("num buffs to send {}".format(num_buffs))
+
+            ## transmit
+            for i in range(num_buffs-1):
+                samps_sent = tx_stream.send(big_buff, tx_md)
+                tx_md.start_of_burst= False
+            tx_md.end_of_burst = False
+            samps_sents = tx_stream.send(big_buff, tx_md)
+            logger.debug("TX over")
+        elif sampspersymbol % 4 == 0:
+            num_2040_buffs = len(data) // samps_per_buff
+            mod_2040_buffs = len(data) % samps_per_buff
+            if mod_2040_buffs != 0:
+                logger.error("PN length is not a multiple of {}".format(samps_per_buff))
+                raise RuntimeError("PN length is not a multiple of the max_num_samps.")
+            big_buff = np.empty((num_2040_buffs, samps_per_buff))
+            for i in range(len(data)):
+                big_buff[i//samps_per_buff][i%samps_per_buff] = data[i]
+            
+            num_buffs = int((duration_ms / 1000) * self.sample_rate // len(data))
+            logger.debug("num full PN seq. to send {}, each seq. takes {} buffers".format(num_buffs, num_2040_buffs))
+            ## transmit
+            for i in range(num_buffs-1):
+                for j in range(num_2040_buffs):
+                    samps_sent = tx_stream.send(big_buff[j], tx_md)
+                    tx_md.start_of_burst=False
+                    # logger.debug(".")
+            tx_md.end_of_burst=True
+            samps_sent = tx_stream.send(big_buff[0], tx_md) ## sending something, but its dummy data.
+            logger.debug("TX over")
+        else:
+            logger.error("Bad sps. Should be 1,2 or multiple of 4")
+            raise RuntimeError("Bad sps.")
+
+        return data
