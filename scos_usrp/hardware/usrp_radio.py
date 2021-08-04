@@ -820,6 +820,96 @@ class USRPRadio(RadioInterface):
         # return data
 
     ### Max's CW transmit code below
+    def transmit_cw_gps_clock(self, cw_frequency, duration_ms, params_gain, subdev):
+        # """TX samples based on input arguments"""
+
+        # ## redo for scos version of uhd
+        # channel = 0 
+        # #self.usrp.set_clock_source("gpsdo", 0)
+        # #self.usrp.set_time_source("gpsdo", 0)
+        # self.usrp.set_tx_rate(self.sample_rate, channel)
+        # self.usrp.set_tx_freq(self.uhd.types.TuneRequest(self.frequency), channel)
+        # logger.debug("MAXs debug, self.gain is {} and params_gain is {}".format(self.gain, params_gain))
+        # self.usrp.set_tx_gain(params_gain, channel)
+        # self.usrp.set_tx_antenna("TX/RX", 0)
+        # logger.debug("subdev is set to {}".format(subdev))
+        # self.usrp.set_tx_subdev_spec(SubdevSpec(subdev), 0)
+        # ## sleep for a quarter second after setup
+        # time.sleep(0.25)
+
+        #################################
+        ## ^^^ acquire_samples() also hardcoded as a single channel 0 ^^^
+        channel = 0 
+        self.usrp.set_clock_source("gpsdo", 0)
+        self.usrp.set_time_source("gpsdo", 0)
+        self.usrp.set_tx_rate(self.sample_rate, channel)
+        self.usrp.set_tx_freq(self.uhd.types.TuneRequest(self.frequency), channel)
+        logger.debug("MAXs debug, self.gain is {} and params_gain is {}".format(self.gain, params_gain))
+        self.usrp.set_tx_gain(params_gain, channel)
+        self.usrp.set_tx_antenna("TX/RX", 0)
+        logger.debug("subdev is set to {}".format(subdev))
+        self.usrp.set_tx_subdev_spec(SubdevSpec(subdev), 0)
+        ## sleep for a second after setup
+        time.sleep(1)
+        #self.usrp.set_rx_bandwidth(self.sample_rate) ## set IF filter bandwidth (analog frontend filter bandwidth in Hz)
+
+        ## check lock on gps  
+        end_time = datetime.now() + timedelta(milliseconds=CLOCK_TIMEOUT)
+        ref_locked = self.usrp.get_mboard_sensor("ref_locked", 0).to_bool()
+        logger.debug("Waiting for reference lock.")
+        while (not ref_locked) and (datetime.now() < end_time):
+            time.sleep(1e-3)
+            ref_locked = self.usrp.get_mboard_sensor("ref_locked", 0).to_bool()
+        if not ref_locked:
+            logger.error("No reference lock.")
+            raise RuntimeError("Reference lock could not be acquired.")
+        logger.debug("Reference locked.")
+        logger.debug("Check GPS locked.")
+        gps_locked = self.usrp.get_mboard_sensor("gps_locked", 0).to_bool()
+        if gps_locked:
+            logger.debug("GPS Locked")
+        else:
+            raise RuntimeError("GPS lock could not be acquired.")
+            logger.error("GPS not locked")
+
+        ## set time to gps time
+        gps_time = self.uhd.types.TimeSpec(self.usrp.get_mboard_sensor("gps_time", 0).to_int() + 1)
+        self.usrp.set_time_next_pps(gps_time)
+
+        ## sleep after setting GPS time
+        time.sleep(2)
+        #################################
+
+        ## create the tx_stream
+        stream_args = self.uhd.usrp.StreamArgs("fc32", "sc16")
+        stream_args.channels = (0,)
+        tx_stream = self.usrp.get_tx_stream(stream_args)
+        samps_per_buff = tx_stream.get_max_num_samps()
+
+        ## create the CW raw IQ    
+        data = self.create_CW_IQdata(cw_frequency, self.sample_rate, samps_per_buff)
+        #np.reshape(data, (len(data),1))
+
+
+        ## set up metadata
+        tx_md = self.uhd.types.TXMetadata()
+        tx_md.start_of_burst=True ## is true when it is the first packet in a chain
+        tx_md.end_of_burst=False ## is true when it's the last packet in a chain
+        tx_md.has_time_spec=False 
+        
+        num_buffs = int((duration_ms / 1000) * self.sample_rate // samps_per_buff)
+        logger.debug("num buffs to send, {}".format(num_buffs))
+        for i in range(num_buffs-1):
+            samps_sent = tx_stream.send(data, tx_md)
+            tx_md.start_of_burst=False
+            # logger.debug(".")
+        tx_md.end_of_burst=True
+        samps_sent = tx_stream.send(data, tx_md)
+        logger.debug("TX over")
+
+        return data
+    
+    ### Max's CW transmit code below
     def transmit_cw(self, cw_frequency, duration_ms, params_gain, subdev):
         # """TX samples based on input arguments"""
 
@@ -865,8 +955,8 @@ class USRPRadio(RadioInterface):
         logger.debug("TX over")
 
         return data
-    
-    ### Max's CW transmit code below
+
+    ### Max's PN transmit code below
     def transmit_PN_v2(self, seed, sampspersymbol, duration_ms, params_gain, subdev):
         # """TX samples based on input arguments"""
 
