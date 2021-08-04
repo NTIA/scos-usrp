@@ -467,7 +467,7 @@ class USRPRadio(RadioInterface):
         logger.debug("USRP disconnected; error may arrise.")
 
     def acquire_time_domain_samples(
-        self, num_samples, num_samples_skip=0, retries=5, subdev="A:A"
+        self, num_samples, num_samples_skip=0, retries=5, subdev="A:A", gps_clock=False
     ):  # -> np.ndarray:
         """Aquire num_samples_skip+num_samples samples and return the last num_samples"""
         self._sigan_overload = False
@@ -502,8 +502,12 @@ class USRPRadio(RadioInterface):
             ###############################################
             ## ^^^ acquire_samples() also hardcoded as a single channel 0 ^^^
             channel = 0 
-            self.usrp.set_clock_source("gpsdo", 0)
-            self.usrp.set_time_source("gpsdo", 0)
+            if gps_clock:
+                self.usrp.set_clock_source("gpsdo", 0)
+                self.usrp.set_time_source("gpsdo", 0)
+            else:
+                self.usrp.set_clock_source("internal", 0)
+                self.usrp.set_time_source("internal", 0)
             self.usrp.set_rx_rate(self.sample_rate, channel)
             self.usrp.set_rx_bandwidth(self.sample_rate) ## set IF filter bandwidth (analog frontend filter bandwidth in Hz)
             self.usrp.set_rx_freq(self.uhd.types.TuneRequest(self.frequency), channel)
@@ -518,31 +522,32 @@ class USRPRadio(RadioInterface):
             ## sleep for a second after setup
             time.sleep(0.5)
 
-            ## check lock on gps  
-            end_time = datetime.now() + timedelta(milliseconds=CLOCK_TIMEOUT)
-            ref_locked = self.usrp.get_mboard_sensor("ref_locked", 0).to_bool()
-            logger.debug("Waiting for reference lock.")
-            while (not ref_locked) and (datetime.now() < end_time):
-                time.sleep(1e-3)
+            if gps_clock:
+                ## check lock on gps  
+                end_time = datetime.now() + timedelta(milliseconds=CLOCK_TIMEOUT)
                 ref_locked = self.usrp.get_mboard_sensor("ref_locked", 0).to_bool()
-            if not ref_locked:
-                logger.error("No reference lock.")
-                raise RuntimeError("Reference lock could not be acquired.")
-            logger.debug("Reference locked.")
-            logger.debug("Check GPS locked.")
-            gps_locked = self.usrp.get_mboard_sensor("gps_locked", 0).to_bool()
-            if gps_locked:
-                logger.debug("GPS Locked")
-            else:
-                raise RuntimeError("GPS lock could not be acquired.")
-                logger.error("GPS not locked")
+                logger.debug("Waiting for reference lock.")
+                while (not ref_locked) and (datetime.now() < end_time):
+                    time.sleep(1e-3)
+                    ref_locked = self.usrp.get_mboard_sensor("ref_locked", 0).to_bool()
+                if not ref_locked:
+                    logger.error("No reference lock.")
+                    raise RuntimeError("Reference lock could not be acquired.")
+                logger.debug("Reference locked.")
+                logger.debug("Check GPS locked.")
+                gps_locked = self.usrp.get_mboard_sensor("gps_locked", 0).to_bool()
+                if gps_locked:
+                    logger.debug("GPS Locked")
+                else:
+                    raise RuntimeError("GPS lock could not be acquired.")
+                    logger.error("GPS not locked")
 
-            ## set time to gps time
-            gps_time = self.uhd.types.TimeSpec(self.usrp.get_mboard_sensor("gps_time", 0).to_int() + 1)
-            self.usrp.set_time_next_pps(gps_time)
+                ## set time to gps time
+                gps_time = self.uhd.types.TimeSpec(self.usrp.get_mboard_sensor("gps_time", 0).to_int() + 1)
+                self.usrp.set_time_next_pps(gps_time)
 
-            ## sleep after setting GPS time
-            time.sleep(1)
+                ## sleep after setting GPS time
+                time.sleep(1)
             ###############################################
 
             self._capture_time = utils.get_datetime_str_now()
@@ -962,8 +967,9 @@ class USRPRadio(RadioInterface):
 
         ## redo for scos version of uhd
         channel = 0 
-        #self.usrp.set_clock_source("gpsdo", 0)
-        #self.usrp.set_time_source("gpsdo", 0)
+        logger.debug("possible clock sources: {}".format(self.usrp.get_clock_sources(channel)))
+        self.usrp.set_clock_source("internal", channel)
+        self.usrp.set_time_source("internal", channel)
         self.usrp.set_tx_rate(self.sample_rate, channel)
         self.usrp.set_tx_freq(self.uhd.types.TuneRequest(self.frequency), channel)
         logger.debug("MAXs debug, self.gain is {} and params_gain is {}".format(self.gain, params_gain))
