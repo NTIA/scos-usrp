@@ -31,4 +31,5 @@ if not settings.configured or not hasattr(settings, "MOCK_RADIO_RANDOM"):
 else:
     MOCK_RADIO_RANDOM = settings.MOCK_RADIO_RANDOM
 
-USRP_CONNECTION_ARGS = env("USRP_CONNECTION_ARGS", default="num_recv_frames=650")
+# USRP_CONNECTION_ARGS = env("USRP_CONNECTION_ARGS", default="type=b200,num_recv_frames=650")
+USRP_CONNECTION_ARGS = env("USRP_CONNECTION_ARGS", default="addr0=192.168.10.2")

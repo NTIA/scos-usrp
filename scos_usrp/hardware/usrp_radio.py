@@ -52,7 +52,7 @@ DEFAULT_SENSOR_CALIBRATION = {
 class USRPRadio(RadioInterface):
     @property
     def last_calibration_time(self):
-        """ Returns the last calibration time from calibration data. """
+        """Returns the last calibration time from calibration data."""
         if self.sensor_calibration:
             return utils.convert_string_to_millisecond_iso_format(
                 self.sensor_calibration.calibration_datetime
@@ -61,7 +61,7 @@ class USRPRadio(RadioInterface):
 
     @property
     def overload(self):
-        """ Returns True if overload occurred, otherwise returns False. """
+        """Returns True if overload occurred, otherwise returns False."""
         return self._sigan_overload or self._sensor_overload
 
     # Define thresholds for determining ADC overload for the sigan
@@ -111,9 +111,7 @@ class USRPRadio(RadioInterface):
                 logger.warning("uhd not available - disabling radio")
                 return False
 
-            usrp_args = (
-                f"type=b200,{settings.USRP_CONNECTION_ARGS}"  # find any b-series device
-            )
+            usrp_args = f"{settings.USRP_CONNECTION_ARGS}"
             logger.debug(f"usrp_args = {usrp_args}")
 
             try:
@@ -135,11 +133,11 @@ class USRPRadio(RadioInterface):
 
     @property
     def is_available(self):
-        """ Returns True if initialized and ready to make measurements, otherwise returns False. """
+        """Returns True if initialized and ready to make measurements, otherwise returns False."""
         return self._is_available
 
     def get_calibration(self, sensor_cal_file, sigan_cal_file):
-        """ Get calibration data from sensor_cal_file and sigan_cal_file. """
+        """Get calibration data from sensor_cal_file and sigan_cal_file."""
         # Set the default calibration values
         self.sensor_calibration_data = DEFAULT_SENSOR_CALIBRATION.copy()
         self.sigan_calibration_data = DEFAULT_SIGAN_CALIBRATION.copy()
@@ -167,7 +165,7 @@ class USRPRadio(RadioInterface):
 
     @property
     def sample_rate(self):
-        """ Returns the currently configured sample rate in samples per second. """
+        """Returns the currently configured sample rate in samples per second."""
         return self.usrp.get_rx_rate()
 
     @sample_rate.setter
@@ -193,12 +191,12 @@ class USRPRadio(RadioInterface):
 
     @property
     def clock_rate(self):
-        """ Returns the currently configured clock rate in hertz. """
+        """Returns the currently configured clock rate in hertz."""
         return self.usrp.get_master_clock_rate()
 
     @clock_rate.setter
     def clock_rate(self, rate):
-        """ Sets the signal analyzer clock rate.
+        """Sets the signal analyzer clock rate.
 
         :type rate: float
         :param rate: Clock rate in hertz
@@ -209,12 +207,12 @@ class USRPRadio(RadioInterface):
 
     @property
     def frequency(self):
-        """ Returns the currently configured center frequency in hertz. """
+        """Returns the currently configured center frequency in hertz."""
         return self.usrp.get_rx_freq()
 
     @frequency.setter
     def frequency(self, freq):
-        """ Sets the signal analyzer frequency.
+        """Sets the signal analyzer frequency.
 
         :type freq: float
         :param freq: Frequency in hertz
@@ -222,7 +220,7 @@ class USRPRadio(RadioInterface):
         self.tune_frequency(freq)
 
     def tune_frequency(self, rf_freq, dsp_freq=0):
-        """ Tunes the signal analyzer as close as possible to the desired frequency.
+        """Tunes the signal analyzer as close as possible to the desired frequency.
 
         :type rf_freq: float
         :param rf_freq: Desired frequency in hertz
@@ -244,12 +242,12 @@ class USRPRadio(RadioInterface):
 
     @property
     def gain(self):
-        """ Returns the currently configured gain setting in dB. """
+        """Returns the currently configured gain setting in dB."""
         return self.usrp.get_rx_gain()
 
     @gain.setter
     def gain(self, gain):
-        """ Sets the signal analyzer gain setting.
+        """Sets the signal analyzer gain setting.
 
         :type gain: float
         :param gain: Gain in dB
@@ -315,7 +313,7 @@ class USRPRadio(RadioInterface):
             )
 
     def create_calibration_annotation(self):
-        """ Creates the SigMF calibration annotation. """
+        """Creates the SigMF calibration annotation."""
         annotation_md = {
             "ntia-core:annotation_type": "CalibrationAnnotation",
             "ntia-sensor:gain_sigan": self.sigan_calibration_data["gain_sigan"],
@@ -340,7 +338,7 @@ class USRPRadio(RadioInterface):
         return annotation_md
 
     def check_sensor_overload(self, data):
-        """ Check for sensor overload in the measurement data. """
+        """Check for sensor overload in the measurement data."""
         measured_data = data.astype(np.complex64)
 
         time_domain_avg_power = 10 * np.log10(np.mean(np.abs(measured_data) ** 2))
@@ -375,7 +373,7 @@ class USRPRadio(RadioInterface):
             sample_rate - (float) Measurement sample rate in samples per second
             capture_time - (string) Measurement capture time
             calibration_annotation - (dict) SigMF calibration annotation
-    """
+        """
         self._sigan_overload = False
         self._capture_time = None
         # Get the calibration data for the acquisition
@@ -452,7 +450,7 @@ class USRPRadio(RadioInterface):
 
     @property
     def healthy(self):
-        """ Check for ability to acquire samples from the signal analyzer. """
+        """Check for ability to acquire samples from the signal analyzer."""
         logger.debug("Performing USRP health check")
 
         if not self.is_available:
