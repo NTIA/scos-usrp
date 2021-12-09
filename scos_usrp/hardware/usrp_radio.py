@@ -115,8 +115,8 @@ class USRPRadio(RadioInterface):
             logger.debug(f"usrp_args = {usrp_args}")
 
             try:
-                # self.usrp = self.uhd.usrp.MultiUSRP(usrp_args)
-                self.usrp = self.uhd.usrp.MultiUSRP()
+                self.usrp = self.uhd.usrp.MultiUSRP(usrp_args)
+                # self.usrp = self.uhd.usrp.MultiUSRP()
             except RuntimeError:
                 err = "No device found matching search parameters {!r}\n"
                 err = err.format(usrp_args)
