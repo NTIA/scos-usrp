@@ -1,0 +1,8 @@
+-rrequirements.txt
+
+black~=19.10b0
+Django~=3.1.13
+environs~=7.3.1
+packaging==20.4
+pre-commit~=2.9.2
+pytest~=5.4.1

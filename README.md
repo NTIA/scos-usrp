@@ -63,12 +63,43 @@ using a tool such a `conda` or `venv`. The following commands create a virtual
 environment using `venv` and install the required dependencies for development and
 testing.
 
-```python
+```bash
 python3 -m venv ./venv
 source venv/bin/activate
 python3 -m pip install --upgrade pip # upgrade to pip>=18.1
 python3 -m pip install -r requirements-dev.txt
 ```
+
+The requirements.txt file is intended for dependencies needed for installation into
+scos-sensor. It does not include dependencies already in scos-sensor.
+
+#### Using pip-tools
+
+Run the following the virtual environment to install pip-tools.
+
+```bash
+python -m pip install pip-tools
+```
+
+To update requirements.txt after modifying requirements.in:
+
+```bash
+pip-compile requirements.in
+```
+
+To update requirements-dev.txt after modifying requirements.in or requirements-dev.in:
+
+```bash
+pip-compile requirements-dev.in
+```
+
+Use pip-sync to match virtual environment to requirements-dev.txt:
+
+```bash
+pip-sync requirements.txt requirements-dev.txt
+```
+
+For more information about pip-tools, see <https://pip-tools.readthedocs.io/en/latest/#>
 
 ### Running Tests
 
