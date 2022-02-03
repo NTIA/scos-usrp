@@ -3,7 +3,7 @@ from unittest.mock import MagicMock, patch
 
 from pytest import approx
 
-from scos_usrp.hardware import USRPLocation, USRPRadio
+from scos_usrp.hardware import USRPLocation, USRPSignalAnalyzer
 
 
 class TestGPS:
@@ -27,12 +27,12 @@ class TestGPS:
         mock_usrp.get_time_source = MagicMock(return_value="gpsdo")
         mock_usrp.get_clock_sources = MagicMock(return_value=["gpsdo"])
         mock_usrp.get_clock_source = MagicMock(return_value="gpsdo")
-        radio = USRPRadio()
-        radio.usrp = mock_usrp
-        radio.uhd = MagicMock()
-        radio.uhd.types = MagicMock()
-        radio.uhd.types.TimeSpec = MagicMock()
-        gps = USRPLocation(radio)
+        sigan = USRPSignalAnalyzer()
+        sigan.usrp = mock_usrp
+        sigan.uhd = MagicMock()
+        sigan.uhd.types = MagicMock()
+        sigan.uhd.types.TimeSpec = MagicMock()
+        gps = USRPLocation(sigan)
         latitude, longitude, height = gps.get_location()
         assert latitude == approx(39.99511463)
         assert longitude == approx(-105.26158690)
@@ -60,11 +60,11 @@ class TestGPS:
         mock_usrp.get_time_source = MagicMock(return_value="")
         mock_usrp.get_clock_sources = MagicMock(return_value=[""])
         mock_usrp.get_clock_source = MagicMock(return_value="")
-        radio = USRPRadio()
-        radio.usrp = mock_usrp
-        radio.uhd = MagicMock()
-        radio.uhd.types = MagicMock()
-        radio.uhd.types.TimeSpec = MagicMock()
-        gps = USRPLocation(radio)
+        sigan = USRPSignalAnalyzer()
+        sigan.usrp = mock_usrp
+        sigan.uhd = MagicMock()
+        sigan.uhd.types = MagicMock()
+        sigan.uhd.types.TimeSpec = MagicMock()
+        gps = USRPLocation(sigan)
         ret = gps.get_location()
         assert ret == None

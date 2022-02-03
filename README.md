@@ -10,8 +10,8 @@ https://github.com/NTIA/scos-sensor/blob/master/README.md#actions-and-hardware-s
 ) sections which explain the scos-sensor plugin architecture.
 
 This repository includes many 700MHz band actions in [scos_usrp/configs/actions](
-scos_usrp/configs/actions). Action classes, RadioInterface, GPSInterface, and signals
-are used from [scos_actions](https://github.com/NTIA/scos-actions).
+scos_usrp/configs/actions). Action classes, SignalAnalyzerInterface, GPSInterface, and
+signals are used from [scos_actions](https://github.com/NTIA/scos-actions).
 
 For information on adding actions, see the [scos_actions documentation](
 https://github.com/NTIA/scos-actions/blob/master/README.md#adding-actions).
@@ -30,8 +30,8 @@ https://github.com/NTIA/scos-actions/blob/master/README.md#adding-actions).
   initialize the USRP supported actions and sample calibration files.
 - scos_usrp/discover: This includes the code to read yaml files and make actions
   available to scos-sensor.
-- scos_usrp/hardware: This includes the USRP implementation of the radio interface and
-  GPS interface. It also includes supporting calibration and test code.
+- scos_usrp/hardware: This includes the USRP implementation of the signal analyzer
+  interface and GPS interface. It also includes supporting calibration and test code.
 
 ## Running in scos-sensor
 

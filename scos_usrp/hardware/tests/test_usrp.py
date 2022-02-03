@@ -1,8 +1,8 @@
-"""Test aspects of RadioInterface with mocked USRP."""
+"""Test aspects of SignalAnalyzerInterface with mocked USRP."""
 
 import pytest
 
-from scos_usrp.hardware import radio
+from scos_usrp.hardware import sigan
 from scos_usrp.hardware.tests.resources.utils import (
     create_dummy_calibration,
     easy_gain,
@@ -22,11 +22,11 @@ class TestUSRP:
         if self.setup_complete:
             return
 
-        # Create the RadioInterface with the mock usrp_block and get the radio
+        # Create the SignalAnalyzerInterface with the mock usrp_block and get the sigan
         # usrp_iface.connect()
-        if not radio.is_available:
+        if not sigan.is_available:
             raise RuntimeError("Receiver is not available.")
-        self.rx = radio
+        self.rx = sigan
 
         # Alert that the setup was complete
         self.setup_complete = True

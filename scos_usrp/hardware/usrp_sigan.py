@@ -1,10 +1,10 @@
 """Maintains a persistent connection to the USRP.
 
 Example usage:
-    >>> from scos_usrp.hardware import radio
-    >>> radio.is_available
+    >>> from scos_usrp.hardware import sigan
+    >>> sigan.is_available
     True
-    >>> rx = radio
+    >>> rx = sigan
     >>> rx.sample_rate = 10e6
     >>> rx.frequency = 700e6
     >>> rx.gain = 40
@@ -49,7 +49,7 @@ DEFAULT_SENSOR_CALIBRATION = {
 }
 
 
-class USRPRadio(SignalAnalyzerInterface):
+class USRPSignalAnalyzer(SignalAnalyzerInterface):
     @property
     def last_calibration_time(self):
         """Returns the last calibration time from calibration data."""
@@ -97,9 +97,9 @@ class USRPRadio(SignalAnalyzerInterface):
         if self._is_available:
             return True
 
-        if settings.RUNNING_TESTS or settings.MOCK_RADIO:
+        if settings.RUNNING_TESTS or settings.MOCK_SIGAN:
             logger.warning("Using mock USRP.")
-            random = settings.MOCK_RADIO_RANDOM
+            random = settings.MOCK_SIGAN_RANDOM
             self.usrp = MockUsrp(randomize_values=random)
             self._is_available = True
         else:
@@ -108,7 +108,7 @@ class USRPRadio(SignalAnalyzerInterface):
 
                 self.uhd = uhd
             except ImportError:
-                logger.warning("uhd not available - disabling radio")
+                logger.warning("uhd not available - disabling signal analyzer")
                 return False
 
             usrp_args = (
@@ -145,7 +145,7 @@ class USRPRadio(SignalAnalyzerInterface):
         self.sigan_calibration_data = DEFAULT_SIGAN_CALIBRATION.copy()
 
         # Try and load sensor/sigan calibration data
-        if not settings.RUNNING_TESTS and not settings.MOCK_RADIO:
+        if not settings.RUNNING_TESTS and not settings.MOCK_SIGAN:
             try:
                 self.sensor_calibration = calibration.load_from_json(sensor_cal_file)
             except Exception as err:
@@ -390,8 +390,8 @@ class USRPRadio(SignalAnalyzerInterface):
         # Try to acquire the samples
         max_retries = retries
         while True:
-            # No need to skip initial samples when simulating the radio
-            if not settings.RUNNING_TESTS and not settings.MOCK_RADIO:
+            # No need to skip initial samples when simulating the signal analyzer
+            if not settings.RUNNING_TESTS and not settings.MOCK_SIGAN:
                 nsamps += nskip
 
             self._capture_time = utils.get_datetime_str_now()
@@ -409,7 +409,7 @@ class USRPRadio(SignalAnalyzerInterface):
             data = samples[0]  # isolate data for channel 0
             data_len = len(data)
 
-            if not settings.RUNNING_TESTS and not settings.MOCK_RADIO:
+            if not settings.RUNNING_TESTS and not settings.MOCK_SIGAN:
                 data = data[nskip:]
 
             if not len(data) == num_samples:
