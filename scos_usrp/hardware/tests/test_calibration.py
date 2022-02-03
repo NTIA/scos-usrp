@@ -16,11 +16,11 @@ class TestCalibrationFile:
     setup_complete = False
 
     def rand_index(self, l):
-        """ Get a random index for a list """
+        """Get a random index for a list"""
         return random.randint(0, len(l) - 1)
 
     def check_duplicate(self, sr, f, g):
-        """ Check if a set of points was already tested """
+        """Check if a set of points was already tested"""
         for pt in self.pytest_points:
             duplicate_f = f == pt["frequency"]
             duplicate_g = g == pt["gain"]
@@ -29,13 +29,13 @@ class TestCalibrationFile:
                 return True
 
     def run_pytest_point(self, sr, f, g, reason, sr_m=False, f_m=False, g_m=False):
-        """ Test the calculated value against the algorithm
-            Parameters:
-                sr, f, g -> Set values for the mock USRP
-                reason: Test case string for failure reference
-                sr_m, f_m, g_m -> Set values to use when calculating the expected value
-                                  May differ in from actual set points in edge cases
-                                  such as tuning in divisions or uncalibrated sample rate"""
+        """Test the calculated value against the algorithm
+        Parameters:
+            sr, f, g -> Set values for the mock USRP
+            reason: Test case string for failure reference
+            sr_m, f_m, g_m -> Set values to use when calculating the expected value
+                              May differ in from actual set points in edge cases
+                              such as tuning in divisions or uncalibrated sample rate"""
         # Check that the setup was completed
         assert self.setup_complete, "Setup was not completed"
 
@@ -79,15 +79,17 @@ class TestCalibrationFile:
         msg = "{}    Sample Rate: {}({})\r\n".format(msg, sr / 1e6, sr_m / 1e6)
         msg = "{}    Frequency: {}({})\r\n".format(msg, f / 1e6, f_m / 1e6)
         msg = "{}    Gain: {}({})\r\n".format(msg, g, g_m)
-        msg = "{}    Formula: -1 * (Gain - Frequency[GHz] - Sample Rate[MHz])\r\n".format(
-            msg
+        msg = (
+            "{}    Formula: -1 * (Gain - Frequency[GHz] - Sample Rate[MHz])\r\n".format(
+                msg
+            )
         )
         assert is_close(calc_gain_sigan, interp_gain_siggan, tolerance), msg
         return True
 
     @pytest.fixture(autouse=True)
     def setup_calibration_file(self, tmpdir):
-        """ Create the dummy calibration file in the pytest temp directory """
+        """Create the dummy calibration file in the pytest temp directory"""
 
         # Only setup once
         if self.setup_complete:
@@ -220,7 +222,7 @@ class TestCalibrationFile:
         self.setup_complete = True
 
     def test_sf_bound_points(self):
-        """ Test SF determination at boundary points """
+        """Test SF determination at boundary points"""
         self.run_pytest_point(
             self.srs[0], self.frequency_min, self.gain_min, "Testing boundary points"
         )
@@ -229,7 +231,7 @@ class TestCalibrationFile:
         )
 
     def test_sf_no_interpolation_points(self):
-        """ Test points without interpolation """
+        """Test points without interpolation"""
         for i in range(4 * self.test_repeat_times):
             while True:
                 g = self.g_s[self.rand_index(self.g_s)]
@@ -240,7 +242,7 @@ class TestCalibrationFile:
                     break
 
     def test_sf_f_interpolation_points(self):
-        """ Test points with frequency interpolation only """
+        """Test points with frequency interpolation only"""
         for i in range(4 * self.test_repeat_times):
             while True:
                 g = self.g_s[self.rand_index(self.g_s)]
@@ -252,7 +254,7 @@ class TestCalibrationFile:
                     break
 
     def test_sf_g_interpolation_points(self):
-        """ Test points with gain interpolation only """
+        """Test points with gain interpolation only"""
         for i in range(4 * self.test_repeat_times):
             while True:
                 g = self.gi_s[self.rand_index(self.gi_s)]
@@ -264,7 +266,7 @@ class TestCalibrationFile:
                     break
 
     def test_sf_g_f_interpolation_points(self):
-        """ Test points with frequency and gain interpolation only """
+        """Test points with frequency and gain interpolation only"""
         for i in range(4 * self.test_repeat_times):
             while True:
                 g = self.gi_s[self.rand_index(self.gi_s)]
@@ -280,7 +282,7 @@ class TestCalibrationFile:
                     break
 
     def test_g_fudge_points(self):
-        """ Test points with a gain fudge factor """
+        """Test points with a gain fudge factor"""
         for i in range(2 * self.test_repeat_times):
             while True:
                 g = self.gain_min
@@ -300,7 +302,7 @@ class TestCalibrationFile:
                     break
 
     def test_g_fudge_f_interpolation_points(self):
-        """ Test points with a gain fudge factor and frequency interpolation """
+        """Test points with a gain fudge factor and frequency interpolation"""
         for i in range(2 * self.test_repeat_times):
             while True:
                 g = self.gain_min
@@ -328,7 +330,7 @@ class TestCalibrationFile:
                     break
 
     def test_g_fudge_f_oob_points(self):
-        """ Test points with a gain fudge factor and out-of-bound frequencies """
+        """Test points with a gain fudge factor and out-of-bound frequencies"""
         for i in range(self.test_repeat_times):
             while True:
                 g = self.gain_min
@@ -384,7 +386,7 @@ class TestCalibrationFile:
                     break
 
     def test_g_interpolation_f_oob_points(self):
-        """ Test points with gain interpolation and out-of-bound frequencies """
+        """Test points with gain interpolation and out-of-bound frequencies"""
         for i in range(2 * self.test_repeat_times):
             while True:
                 g = self.gi_s[self.rand_index(self.gi_s)]
@@ -414,7 +416,7 @@ class TestCalibrationFile:
                     break
 
     def test_f_oob_points(self):
-        """ Test points with out-of-bound frequencies """
+        """Test points with out-of-bound frequencies"""
         for i in range(2 * self.test_repeat_times):
             while True:
                 g = self.g_s[self.rand_index(self.g_s)]
@@ -442,7 +444,7 @@ class TestCalibrationFile:
                     break
 
     def test_division_f_points(self):
-        """ Test points with division frequencies """
+        """Test points with division frequencies"""
         for i in range(self.test_repeat_times):
             for f in self.div_fs:
                 while True:
@@ -453,7 +455,7 @@ class TestCalibrationFile:
                         break
 
     def test_g_interpolation_division_f_points(self):
-        """ Test points with gain interpolation and division frequencies """
+        """Test points with gain interpolation and division frequencies"""
         for i in range(self.test_repeat_times):
             for f in self.div_fs:
                 while True:
@@ -468,7 +470,7 @@ class TestCalibrationFile:
                         break
 
     def test_g_fudge_division_f_points(self):
-        """ Test points with gain fudge and division frequencies """
+        """Test points with gain fudge and division frequencies"""
         for i in range(self.test_repeat_times):
             for f in self.div_fs:
                 while True:
@@ -483,7 +485,7 @@ class TestCalibrationFile:
                         break
 
     def test_in_division_f_points(self):
-        """ Test points with in-division frequencies """
+        """Test points with in-division frequencies"""
         for j in range(self.test_repeat_times):
             for i in range(0, len(self.div_fs), 2):
                 while True:
@@ -499,7 +501,7 @@ class TestCalibrationFile:
                         break
 
     def test_g_interpolation_in_division_f_points(self):
-        """ Test points with gain interpolation and in-division frequencies """
+        """Test points with gain interpolation and in-division frequencies"""
         for j in range(self.test_repeat_times):
             for i in range(0, len(self.div_fs), 2):
                 while True:
@@ -516,7 +518,7 @@ class TestCalibrationFile:
                         break
 
     def test_g_fudge_in_division_f_points(self):
-        """ Test points with gain fudge and in-division frequencies """
+        """Test points with gain fudge and in-division frequencies"""
         for j in range(self.test_repeat_times):
             for i in range(0, len(self.div_fs), 2):
                 while True:
@@ -533,7 +535,7 @@ class TestCalibrationFile:
                         break
 
     def test_sample_rate_points(self):
-        """ Test points with gain and frequency interpolation at different sample rates """
+        """Test points with gain and frequency interpolation at different sample rates"""
         for j in range(self.test_repeat_times):
             for i in range(len(self.srs)):
                 while True:
@@ -552,7 +554,7 @@ class TestCalibrationFile:
                         break
 
     def test_uncalibrated_sample_rate_points(self):
-        """ Test points with gain and frequency interpolation at uncalibrated sample rates """
+        """Test points with gain and frequency interpolation at uncalibrated sample rates"""
         for i in range(4 * self.test_repeat_times):
             while True:
                 g = self.gi_s[self.rand_index(self.gi_s)]

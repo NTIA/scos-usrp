@@ -15,9 +15,7 @@ class TestGPS:
         def side_effect(value):
             if value == "gps_gpgga":
                 gps_gpgga_mock = MagicMock()
-                gps_gpgga_mock.value = (
-                    "$GPGGA,164747.933,3959.707,N,10515.695,W,1,12,1.0,0.0,M,0.0,M,,*7E"
-                )
+                gps_gpgga_mock.value = "$GPGGA,164747.933,3959.707,N,10515.695,W,1,12,1.0,10.0,M,0.0,M,,*7E"
                 return gps_gpgga_mock
             elif value == "gps_time":
                 return MagicMock(return_value=1587746867)
@@ -35,9 +33,10 @@ class TestGPS:
         radio.uhd.types = MagicMock()
         radio.uhd.types.TimeSpec = MagicMock()
         gps = USRPLocation(radio)
-        latitude, longitude = gps.get_lat_long()
+        latitude, longitude, height = gps.get_location()
         assert latitude == approx(39.99511463)
         assert longitude == approx(-105.26158690)
+        assert height == approx(10.0)
 
     @patch("uhd.usrp.MultiUSRP")
     def test_get_lat_long_no_gps(self, mock_usrp, caplog):
@@ -67,5 +66,5 @@ class TestGPS:
         radio.uhd.types = MagicMock()
         radio.uhd.types.TimeSpec = MagicMock()
         gps = USRPLocation(radio)
-        ret = gps.get_lat_long()
+        ret = gps.get_location()
         assert ret == None

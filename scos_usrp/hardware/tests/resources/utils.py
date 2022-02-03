@@ -4,7 +4,7 @@ from scos_usrp.hardware.calibration import Calibration
 
 
 def easy_gain(sample_rate, frequency, gain):
-    """ Create an easily interpolated calibration gain value for testing.
+    """Create an easily interpolated calibration gain value for testing.
 
     :type sample_rate: float
     :param sample_rate: Sample rate in samples per second
@@ -21,7 +21,7 @@ def easy_gain(sample_rate, frequency, gain):
 
 
 def is_close(a, b, tolerance):
-    """ Handle floating point comparisons """
+    """Handle floating point comparisons"""
     return abs(a - b) <= tolerance
 
 

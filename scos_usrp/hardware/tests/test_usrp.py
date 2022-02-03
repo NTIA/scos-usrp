@@ -16,7 +16,7 @@ class TestUSRP:
 
     @pytest.fixture(autouse=True)
     def setup_mock_usrp(self):
-        """ Create the mock USRP """
+        """Create the mock USRP"""
 
         # Only setup once
         if self.setup_complete:

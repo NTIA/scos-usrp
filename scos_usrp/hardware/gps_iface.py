@@ -14,7 +14,7 @@ class USRPLocation(GPSInterface):
     def __init__(self, radio):
         self.radio = radio
 
-    def get_lat_long(self, timeout_s=1):
+    def get_location(self, timeout_s=1):
         """Use low-level UHD and USRP block methods to sync with GPS."""
 
         if not self.radio.is_available:
@@ -114,6 +114,9 @@ class USRPLocation(GPSInterface):
             longitude_degs = int(longitude / 100)
             longitude_mins = longitude - (longitude_degs * 100)
             longitude_dd = longitude_degs + (longitude_mins / 60)
+
+            if altu.strip() == "M":
+                height = float(alt)
         except ValueError as err:
             logger.error("Got invalid GPGGA sentence from GPS - {}".format(err))
             return None
@@ -121,7 +124,7 @@ class USRPLocation(GPSInterface):
         msg = "Updated GPS lat, long ({}, {})".format(latitude_dd, longitude_dd)
         logger.info(msg)
 
-        return latitude_dd, longitude_dd
+        return latitude_dd, longitude_dd, height
 
     def get_gps_time(self):
         uhd = self.radio.uhd
