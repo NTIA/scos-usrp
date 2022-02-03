@@ -1,4 +1,2 @@
 # for use with scos-sensor
-numpy==1.18.5
-scipy==1.4.1
 scos_actions @ git+https://github.com/NTIA/scos-actions@bug_fix#egg=scos_actions

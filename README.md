@@ -56,7 +56,7 @@ Below are steps to run scos-sensor with the scos-usrp plugin:
 ### Requirements and Configuration
 
 Requires pip>=18.1 (upgrade using `python3 -m pip install --upgrade pip`) and
-python>=3.6.
+python>=3.7.
 
 It is highly recommended that you first initialize a virtual development environment
 using a tool such a `conda` or `venv`. The following commands create a virtual
@@ -75,7 +75,12 @@ scos-sensor. It does not include dependencies already in scos-sensor.
 
 #### Using pip-tools
 
-Run the following the virtual environment to install pip-tools.
+It is recommended to keep direct dependencies in a separate file. The direct
+dependencies are in the requirements.in and requirements-dev.in files. Then pip-tools
+can be used to generate files with all the dependencies and transitive dependencies
+(sub-dependencies). The files containing all the dependencies are in requirements.txt
+and requirements-dev.txt. Run the following in the virtual environment to install
+pip-tools.
 
 ```bash
 python -m pip install pip-tools
