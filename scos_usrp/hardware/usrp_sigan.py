@@ -460,7 +460,7 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
 
         # arbitrary number of samples to acquire to check health of usrp
         # keep above ~70k to catch previous errors seen at ~70k
-        requested_samples = 100000
+        requested_samples = 100_000
 
         try:
             measurement_result = self.acquire_time_domain_samples(requested_samples)

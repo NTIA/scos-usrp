@@ -1,2 +1,4 @@
-# for use with scos-sensor
-scos_actions @ git+https://github.com/NTIA/scos-actions@bug_fix#egg=scos_actions
+django>=3.0, <4.0
+environs>=9.0, <10.0
+numpy>=1.0, <2.0
+scos_actions @ git+https://github.com/NTIA/scos-actions@refactor_dependencies

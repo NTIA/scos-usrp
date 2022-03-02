@@ -4,15 +4,13 @@
 #
 #    pip-compile requirements-dev.in
 #
-appdirs==1.4.4
-    # via black
-asgiref==3.4.1
-    # via django
-attrs==21.4.0
+asgiref==3.5.0
     # via
-    #   black
-    #   pytest
-black==19.10b0
+    #   -r requirements.txt
+    #   django
+attrs==21.4.0
+    # via pytest
+black==22.1.0
     # via -r requirements-dev.in
 cfgv==3.3.1
     # via pre-commit
@@ -20,10 +18,12 @@ click==8.0.3
     # via black
 distlib==0.3.4
     # via virtualenv
-django==3.1.14
-    # via -r requirements-dev.in
-environs==7.3.1
-    # via -r requirements-dev.in
+django==3.2.12
+    # via
+    #   -r requirements.txt
+    #   scos-actions
+environs==9.5.0
+    # via -r requirements.txt
 filelock==3.4.1
     # via virtualenv
 identify==2.4.2
@@ -35,24 +35,29 @@ importlib-metadata==4.8.3
     #   pre-commit
     #   pytest
     #   virtualenv
-marshmallow==3.14.1
-    # via environs
-more-itertools==8.12.0
+iniconfig==1.1.1
     # via pytest
+marshmallow==3.14.1
+    # via
+    #   -r requirements.txt
+    #   environs
+mypy-extensions==0.4.3
+    # via black
 nodeenv==1.6.0
     # via pre-commit
 numpy==1.18.5
     # via
     #   -r requirements.txt
     #   scipy
+    #   scos-actions
 packaging==20.4
-    # via
-    #   -r requirements-dev.in
-    #   pytest
+    # via pytest
 pathspec==0.9.0
     # via black
 platformdirs==2.4.0
-    # via virtualenv
+    # via
+    #   black
+    #   virtualenv
 pluggy==0.13.1
     # via pytest
 pre-commit==2.17.0
@@ -61,34 +66,35 @@ py==1.11.0
     # via pytest
 pyparsing==3.0.6
     # via packaging
-pytest==5.4.3
+pytest==7.0.1
     # via -r requirements-dev.in
 python-dateutil==2.8.1
     # via
     #   -r requirements.txt
     #   scos-actions
 python-dotenv==0.19.2
-    # via environs
-pytz==2020.1
-    # via django
+    # via
+    #   -r requirements.txt
+    #   environs
+pytz==2021.3
+    # via
+    #   -r requirements.txt
+    #   django
 pyyaml==6.0
     # via pre-commit
-regex==2021.11.10
-    # via black
-ruamel.yaml==0.16.10
+ruamel-yaml==0.16.10
     # via
     #   -r requirements.txt
     #   scos-actions
-ruamel.yaml.clib==0.2.0
+ruamel-yaml-clib==0.2.0
     # via
     #   -r requirements.txt
-    #   ruamel.yaml
-    #   scos-actions
+    #   ruamel-yaml
 scipy==1.7.3
     # via
     #   -r requirements.txt
     #   scos-actions
-scos-actions @ git+https://github.com/NTIA/scos-actions@bug_fix
+scos_actions @ git+https://github.com/NTIA/scos-actions@refactor_dependencies
     # via -r requirements.txt
 sigmf @ git+https://github.com/NTIA/SigMF.git@multi-recording-archive
     # via
@@ -100,21 +106,25 @@ six==1.15.0
     #   packaging
     #   python-dateutil
     #   virtualenv
-sqlparse==0.3.1
-    # via django
+sqlparse==0.4.2
+    # via
+    #   -r requirements.txt
+    #   django
 toml==0.10.2
+    # via pre-commit
+tomli==2.0.1
     # via
     #   black
-    #   pre-commit
+    #   pytest
 typed-ast==1.5.1
     # via black
-typing-extensions==4.0.1
+typing-extensions==4.1.1
     # via
+    #   -r requirements.txt
     #   asgiref
+    #   black
     #   importlib-metadata
 virtualenv==20.13.0
     # via pre-commit
-wcwidth==0.2.5
-    # via pytest
 zipp==3.6.0
     # via importlib-metadata
