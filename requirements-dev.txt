@@ -14,7 +14,7 @@ black==22.1.0
     # via -r requirements-dev.in
 cfgv==3.3.1
     # via pre-commit
-click==8.0.3
+click==8.0.4
     # via black
 distlib==0.3.4
     # via virtualenv
@@ -24,11 +24,11 @@ django==3.2.12
     #   scos-actions
 environs==9.5.0
     # via -r requirements.txt
-filelock==3.4.1
+filelock==3.6.0
     # via virtualenv
-identify==2.4.2
+identify==2.4.11
     # via pre-commit
-importlib-metadata==4.8.3
+importlib-metadata==4.11.2
     # via
     #   click
     #   pluggy
@@ -45,30 +45,30 @@ mypy-extensions==0.4.3
     # via black
 nodeenv==1.6.0
     # via pre-commit
-numpy==1.18.5
+numpy==1.21.5
     # via
     #   -r requirements.txt
     #   scipy
     #   scos-actions
-packaging==20.4
+packaging==21.3
     # via pytest
 pathspec==0.9.0
     # via black
-platformdirs==2.4.0
+platformdirs==2.5.1
     # via
     #   black
     #   virtualenv
-pluggy==0.13.1
+pluggy==1.0.0
     # via pytest
 pre-commit==2.17.0
     # via -r requirements-dev.in
 py==1.11.0
     # via pytest
-pyparsing==3.0.6
+pyparsing==3.0.7
     # via packaging
 pytest==7.0.1
     # via -r requirements-dev.in
-python-dateutil==2.8.1
+python-dateutil==2.8.2
     # via
     #   -r requirements.txt
     #   scos-actions
@@ -82,11 +82,11 @@ pytz==2021.3
     #   django
 pyyaml==6.0
     # via pre-commit
-ruamel-yaml==0.16.10
+ruamel-yaml==0.17.21
     # via
     #   -r requirements.txt
     #   scos-actions
-ruamel-yaml-clib==0.2.0
+ruamel-yaml-clib==0.2.6
     # via
     #   -r requirements.txt
     #   ruamel-yaml
@@ -100,10 +100,9 @@ sigmf @ git+https://github.com/NTIA/SigMF.git@multi-recording-archive
     # via
     #   -r requirements.txt
     #   scos-actions
-six==1.15.0
+six==1.16.0
     # via
     #   -r requirements.txt
-    #   packaging
     #   python-dateutil
     #   virtualenv
 sqlparse==0.4.2
@@ -116,7 +115,7 @@ tomli==2.0.1
     # via
     #   black
     #   pytest
-typed-ast==1.5.1
+typed-ast==1.5.2
     # via black
 typing-extensions==4.1.1
     # via
@@ -124,7 +123,7 @@ typing-extensions==4.1.1
     #   asgiref
     #   black
     #   importlib-metadata
-virtualenv==20.13.0
+virtualenv==20.13.3
     # via pre-commit
-zipp==3.6.0
+zipp==3.7.0
     # via importlib-metadata
