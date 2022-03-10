@@ -1,2 +1,2 @@
 # for use with scos-sensor
-scos_actions @ git+https://github.com/NTIA/scos-actions@bug_fix#egg=scos_actions
+scos_actions @ git+https://github.com/NTIA/scos-actions@preselector-bug_fix#egg=scos_actions
