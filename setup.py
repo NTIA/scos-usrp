@@ -16,7 +16,7 @@ if os.path.isfile(requirements_path):
 
 setuptools.setup(
     name="scos_usrp",
-    version="0.0.0",
+    version="0.1.0",
     author="The Institute for Telecommunication Sciences",
     # author_email="author@example.com",
     description="USRP support for scos-sensor",
