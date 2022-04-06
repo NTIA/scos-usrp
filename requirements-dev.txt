@@ -10,11 +10,11 @@ asgiref==3.5.0
     #   django
 attrs==21.4.0
     # via pytest
-black==22.1.0
+black==22.3.0
     # via -r requirements-dev.in
 cfgv==3.3.1
     # via pre-commit
-click==8.0.4
+click==8.1.2
     # via black
 distlib==0.3.4
     # via virtualenv
@@ -63,7 +63,7 @@ platformdirs==2.5.1
     #   virtualenv
 pluggy==1.0.0
     # via pytest
-pre-commit==2.17.0
+pre-commit==2.18.1
     # via -r requirements-dev.in
 py==1.11.0
     # via pytest
@@ -77,7 +77,7 @@ python-dateutil==2.8.2
     # via
     #   -r requirements.txt
     #   scos-actions
-python-dotenv==0.19.2
+python-dotenv==0.20.0
     # via
     #   -r requirements.txt
     #   environs
@@ -128,7 +128,7 @@ typing-extensions==4.1.1
     #   asgiref
     #   black
     #   importlib-metadata
-virtualenv==20.13.4
+virtualenv==20.14.0
     # via pre-commit
-zipp==3.7.0
+zipp==3.8.0
     # via importlib-metadata
