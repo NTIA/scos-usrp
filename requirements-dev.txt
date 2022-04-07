@@ -12,8 +12,16 @@ attrs==21.4.0
     # via pytest
 black==22.3.0
     # via -r requirements-dev.in
+certifi==2021.10.8
+    # via
+    #   -r requirements.txt
+    #   requests
 cfgv==3.3.1
     # via pre-commit
+charset-normalizer==2.0.12
+    # via
+    #   -r requirements.txt
+    #   requests
 click==8.1.2
     # via black
 distlib==0.3.4
@@ -28,6 +36,10 @@ filelock==3.6.0
     # via virtualenv
 identify==2.4.12
     # via pre-commit
+idna==3.3
+    # via
+    #   -r requirements.txt
+    #   requests
 importlib-metadata==4.11.3
     # via
     #   click
@@ -37,6 +49,10 @@ importlib-metadata==4.11.3
     #   virtualenv
 iniconfig==1.1.1
     # via pytest
+its-preselector @ git+https://github.com/NTIA/Preselector@0.0.1
+    # via
+    #   -r requirements.txt
+    #   scos-actions
 marshmallow==3.15.0
     # via
     #   -r requirements.txt
@@ -87,6 +103,8 @@ pytz==2022.1
     #   django
 pyyaml==6.0
     # via pre-commit
+requests==2.27.1
+    # via -r requirements.txt
 ruamel-yaml==0.17.21
     # via
     #   -r requirements.txt
@@ -99,7 +117,7 @@ scipy==1.7.3
     # via
     #   -r requirements.txt
     #   scos-actions
-scos_actions @ git+https://github.com/NTIA/scos-actions@0.1.0
+scos_actions @ git+https://github.com/NTIA/scos-actions@1.0.0
     # via -r requirements.txt
 sigmf @ git+https://github.com/NTIA/SigMF.git@multi-recording-archive
     # via
@@ -128,6 +146,10 @@ typing-extensions==4.1.1
     #   asgiref
     #   black
     #   importlib-metadata
+urllib3==1.26.9
+    # via
+    #   -r requirements.txt
+    #   requests
 virtualenv==20.14.0
     # via pre-commit
 zipp==3.8.0
