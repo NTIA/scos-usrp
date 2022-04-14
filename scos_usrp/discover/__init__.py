@@ -12,7 +12,9 @@ logger = logging.getLogger(__name__)
 actions = {"monitor_usrp": MonitorSignalAnalyzer(sigan), "sync_gps": SyncGps(gps)}
 
 logger.debug("scos_usrp: ACTION_DEFINITIONS_DIR =  " + ACTION_DEFINITIONS_DIR)
-yaml_actions, yaml_test_actions = init(sigan=sigan, yaml_dir=ACTION_DEFINITIONS_DIR)
+yaml_actions, yaml_test_actions = init(
+    sigan=sigan, gps=gps, yaml_dir=ACTION_DEFINITIONS_DIR
+)
 actions.update(yaml_actions)
 
 
