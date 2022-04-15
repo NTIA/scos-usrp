@@ -1,5 +1,5 @@
 from scos_usrp.hardware.gps_iface import USRPLocation
-from scos_usrp.hardware.usrp_radio import USRPRadio
+from scos_usrp.hardware.usrp_sigan import USRPSignalAnalyzer
 
-radio = USRPRadio()
-gps = USRPLocation(radio)
+sigan = USRPSignalAnalyzer()
+gps = USRPLocation(sigan)

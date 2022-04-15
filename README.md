@@ -10,8 +10,8 @@ https://github.com/NTIA/scos-sensor/blob/master/README.md#actions-and-hardware-s
 ) sections which explain the scos-sensor plugin architecture.
 
 This repository includes many 700MHz band actions in [scos_usrp/configs/actions](
-scos_usrp/configs/actions). Action classes, RadioInterface, GPSInterface, and signals
-are used from [scos_actions](https://github.com/NTIA/scos-actions).
+scos_usrp/configs/actions). Action classes, SignalAnalyzerInterface, GPSInterface, and
+signals are used from [scos_actions](https://github.com/NTIA/scos-actions).
 
 For information on adding actions, see the [scos_actions documentation](
 https://github.com/NTIA/scos-actions/blob/master/README.md#adding-actions).
@@ -30,8 +30,8 @@ https://github.com/NTIA/scos-actions/blob/master/README.md#adding-actions).
   initialize the USRP supported actions and sample calibration files.
 - scos_usrp/discover: This includes the code to read yaml files and make actions
   available to scos-sensor.
-- scos_usrp/hardware: This includes the USRP implementation of the radio interface and
-  GPS interface. It also includes supporting calibration and test code.
+- scos_usrp/hardware: This includes the USRP implementation of the signal analyzer
+  interface and GPS interface. It also includes supporting calibration and test code.
 
 ## Running in scos-sensor
 
@@ -56,19 +56,52 @@ Below are steps to run scos-sensor with the scos-usrp plugin:
 ### Requirements and Configuration
 
 Requires pip>=18.1 (upgrade using `python3 -m pip install --upgrade pip`) and
-python>=3.6.
+python>=3.7.
 
 It is highly recommended that you first initialize a virtual development environment
 using a tool such a `conda` or `venv`. The following commands create a virtual
 environment using `venv` and install the required dependencies for development and
 testing.
 
-```python
+```bash
 python3 -m venv ./venv
 source venv/bin/activate
 python3 -m pip install --upgrade pip # upgrade to pip>=18.1
 python3 -m pip install -r requirements-dev.txt
 ```
+
+#### Using pip-tools
+
+It is recommended to keep direct dependencies in a separate file. The direct
+dependencies are in the requirements.in and requirements-dev.in files. Then pip-tools
+can be used to generate files with all the dependencies and transitive dependencies
+(sub-dependencies). The files containing all the dependencies are in requirements.txt
+and requirements-dev.txt. Run the following in the virtual environment to install
+pip-tools.
+
+```bash
+python -m pip install pip-tools
+```
+
+To update requirements.txt after modifying requirements.in:
+
+```bash
+pip-compile requirements.in
+```
+
+To update requirements-dev.txt after modifying requirements.in or requirements-dev.in:
+
+```bash
+pip-compile requirements-dev.in
+```
+
+Use pip-sync to match virtual environment to requirements-dev.txt:
+
+```bash
+pip-sync requirements.txt requirements-dev.txt
+```
+
+For more information about pip-tools, see <https://pip-tools.readthedocs.io/en/latest/#>
 
 ### Running Tests
 
