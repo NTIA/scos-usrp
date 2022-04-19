@@ -17,8 +17,8 @@ from datetime import datetime
 import numpy as np
 from scos_actions import utils
 from scos_actions.hardware.sigan_iface import SignalAnalyzerInterface
-from scos_actions.actions import sensor_calibration
-from scos_actions.actions import sigan_calibration
+from scos_actions.settings import sensor_calibration
+from scos_actions.settings import sigan_calibration
 
 from scos_usrp import settings
 from scos_usrp.hardware.mocks.usrp_block import MockUsrp
