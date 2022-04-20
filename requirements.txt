@@ -46,7 +46,7 @@ ruamel-yaml-clib==0.2.6
     # via ruamel-yaml
 scipy==1.7.3
     # via scos-actions
-scos_actions @ git+https://github.com/NTIA/scos-actions@1.0.0
+scos_actions @ git+https://github.com/NTIA/scos-actions@calibration
     # via -r requirements.in
 sigmf @ git+https://github.com/NTIA/SigMF.git@multi-recording-archive
     # via scos-actions
