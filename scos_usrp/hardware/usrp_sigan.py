@@ -33,6 +33,7 @@ VALID_GAINS = (0, 20, 40, 60)
 
 
 class USRPSignalAnalyzer(SignalAnalyzerInterface):
+
     @property
     def last_calibration_time(self):
         """Returns the last calibration time from calibration data."""
@@ -209,33 +210,6 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
         msg = "set USRP gain: {:.1f} dB"
         logger.debug(msg.format(self.usrp.get_rx_gain()))
 
-
-
-    def create_calibration_annotation(self):
-        """Creates the SigMF calibration annotation."""
-        annotation_md = {
-            "ntia-core:annotation_type": "CalibrationAnnotation",
-            "ntia-sensor:gain_sigan": self.sigan_calibration_data["gain_sigan"],
-            "ntia-sensor:noise_figure_sigan": self.sigan_calibration_data[
-                "noise_figure_sigan"
-            ],
-            "ntia-sensor:1db_compression_point_sigan": self.sigan_calibration_data[
-                "1db_compression_sigan"
-            ],
-            "ntia-sensor:enbw_sigan": self.sigan_calibration_data["enbw_sigan"],
-            "ntia-sensor:gain_preselector": self.sensor_calibration_data[
-                "gain_preselector"
-            ],
-            "ntia-sensor:noise_figure_sensor": self.sensor_calibration_data[
-                "noise_figure_sensor"
-            ],
-            "ntia-sensor:1db_compression_point_sensor": self.sensor_calibration_data[
-                "1db_compression_sensor"
-            ],
-            "ntia-sensor:enbw_sensor": self.sensor_calibration_data["enbw_sensor"],
-        }
-        return annotation_md
-
     def check_sensor_overload(self, data):
         """Check for sensor overload in the measurement data."""
         measured_data = data.astype(np.complex64)
@@ -252,7 +226,7 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
                 > self.sensor_calibration_data["1db_compression_sensor"]
             )
 
-    def acquire_time_domain_samples(self, num_samples, num_samples_skip=0, retries=5):
+    def acquire_time_domain_samples(self, num_samples, num_samples_skip=0, retries=5,gain_adjust=True):
         """Acquire num_samples_skip+num_samples samples and return the last num_samples
 
         :type num_samples: int
@@ -276,14 +250,17 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
         self._sigan_overload = False
         self._capture_time = None
         # Get the calibration data for the acquisition
-        self.recompute_calibration_data()
+        calibration_args = [self.sample_rate, self.frequency, self.gain]
+        self.recompute_calibration_data(calibration_args)
         nsamps = int(num_samples)
         nskip = int(num_samples_skip)
 
         # Compute the linear gain
         db_gain = self.sensor_calibration_data["gain_sensor"]
-        linear_gain = 10 ** (db_gain / 20.0)
-
+        if gain_adjust:
+            linear_gain = 10 ** (db_gain / 20.0)
+        else:
+            linear_gain = 1
         # Try to acquire the samples
         max_retries = retries
         while True:
@@ -343,7 +320,6 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
                     "gain": self.gain,
                     "sample_rate": self.sample_rate,
                     "capture_time": self._capture_time,
-                    "calibration_annotation": self.create_calibration_annotation(),
                 }
                 return measurement_result
 
