@@ -63,6 +63,7 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
         self._sigan_overload = False
         self._sensor_overload = False
         self._capture_time = None
+        self.requested_sample_rate = 0
         self.connect()
 
 
@@ -123,6 +124,7 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
         :type sample_rate: float
         :param sample_rate: Sample rate in samples per second
         """
+        self.requested_sample_rate = rate
         self.usrp.set_rx_rate(rate)
         fs_MSps = self.sample_rate / 1e6
         logger.debug("set USRP sample rate: {:.2f} MSps".format(fs_MSps))
@@ -250,7 +252,7 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
         self._sigan_overload = False
         self._capture_time = None
         # Get the calibration data for the acquisition
-        calibration_args = [self.sample_rate, self.frequency, self.gain]
+        calibration_args = [self.requested_sample_rate, self.frequency, self.gain]
         self.recompute_calibration_data(calibration_args)
         nsamps = int(num_samples)
         nskip = int(num_samples_skip)
