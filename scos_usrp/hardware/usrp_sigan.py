@@ -252,6 +252,7 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
         self._sigan_overload = False
         self._capture_time = None
         # Get the calibration data for the acquisition
+        logger.debug('Using requested sample rate of ' + self.requested_sample_rate)
         calibration_args = [self.requested_sample_rate, self.frequency, self.gain]
         self.recompute_calibration_data(calibration_args)
         nsamps = int(num_samples)
