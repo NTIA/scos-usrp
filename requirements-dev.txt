@@ -8,6 +8,8 @@ asgiref==3.5.0
     # via
     #   -r requirements.txt
     #   django
+atomicwrites==1.4.1
+    # via pytest
 attrs==21.4.0
     # via pytest
 black==22.3.0
@@ -24,6 +26,10 @@ charset-normalizer==2.0.12
     #   requests
 click==8.1.2
     # via black
+colorama==0.4.5
+    # via
+    #   click
+    #   pytest
 distlib==0.3.4
     # via virtualenv
 django==3.2.12
@@ -61,15 +67,21 @@ mypy-extensions==0.4.3
     # via black
 nodeenv==1.6.0
     # via pre-commit
+numexpr==2.8.3
+    # via
+    #   -r requirements.txt
+    #   scos-actions
 numpy==1.21.5
     # via
     #   -r requirements.txt
+    #   numexpr
     #   scipy
     #   scos-actions
 packaging==21.3
     # via
     #   -r requirements.txt
     #   marshmallow
+    #   numexpr
     #   pytest
 pathspec==0.9.0
     # via black
@@ -117,7 +129,7 @@ scipy==1.7.3
     # via
     #   -r requirements.txt
     #   scos-actions
-scos_actions @ git+https://github.com/NTIA/scos-actions@y_factor_cal_complete
+scos-actions @ git+https://github.com/NTIA/scos-actions@dsp-refactor
     # via -r requirements.txt
 sigmf @ git+https://github.com/NTIA/SigMF.git@multi-recording-archive
     # via
