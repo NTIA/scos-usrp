@@ -1,4 +1,4 @@
-django>=3.2.13, <4.0
+django>=3.2.14, <4.0
 environs>=9.0, <10.0
-numpy>=1.0, <2.0
+numpy>=1.22 , <2.0
 scos_actions @ git+https://github.com/NTIA/scos-actions@fix_dateutil_dependency

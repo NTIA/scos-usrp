@@ -16,7 +16,7 @@ if os.path.isfile(requirements_path):
 
 setuptools.setup(
     name="scos_usrp",
-    version="0.1.1",
+    version="1.0.0",
     author="The Institute for Telecommunication Sciences",
     # author_email="author@example.com",
     description="USRP support for scos-sensor",
@@ -29,7 +29,7 @@ setuptools.setup(
         # "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    python_requires=">=3.7",
+    python_requires=">=3.8",
     install_requires=install_requires,
     package_data={"scos_usrp": ["configs/*.example", "configs/actions/*.yml"]},
 )
