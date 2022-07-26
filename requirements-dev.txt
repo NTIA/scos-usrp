@@ -115,7 +115,7 @@ scipy==1.8.1
     #   scos-actions
 scos_actions @ git+https://github.com/NTIA/scos-actions@fix_dateutil_dependency
     # via -r requirements.txt
-sigmf @ git+https://github.com/NTIA/SigMF.git@multi-recording-archive
+sigmf @ git+https://github.com/NTIA/SigMF.git@python3.10_fix
     # via
     #   -r requirements.txt
     #   scos-actions
@@ -124,7 +124,6 @@ six==1.16.0
     #   -r requirements.txt
     #   python-dateutil
     #   sigmf
-    #   virtualenv
 sqlparse==0.4.2
     # via
     #   -r requirements.txt
@@ -141,7 +140,7 @@ urllib3==1.26.11
     # via
     #   -r requirements.txt
     #   requests
-virtualenv==20.15.1
+virtualenv==20.16.0
     # via pre-commit
 
 # The following packages are considered to be unsafe in a requirements file:

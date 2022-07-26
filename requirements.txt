@@ -48,7 +48,7 @@ scipy==1.8.1
     # via scos-actions
 scos_actions @ git+https://github.com/NTIA/scos-actions@fix_dateutil_dependency
     # via -r requirements.in
-sigmf @ git+https://github.com/NTIA/SigMF.git@multi-recording-archive
+sigmf @ git+https://github.com/NTIA/SigMF.git@python3.10_fix
     # via scos-actions
 six==1.16.0
     # via
