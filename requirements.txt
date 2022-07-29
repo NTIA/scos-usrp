@@ -22,7 +22,7 @@ its-preselector @ git+https://github.com/NTIA/Preselector@1.0.0
     # via scos-actions
 marshmallow==3.15.0
     # via environs
-numpy==1.21.5
+numpy==1.22.0
     # via
     #   -r requirements.in
     #   scipy
@@ -56,7 +56,5 @@ six==1.16.0
     #   sigmf
 sqlparse==0.4.2
     # via django
-typing-extensions==4.1.1
-    # via asgiref
 urllib3==1.26.9
     # via requests
