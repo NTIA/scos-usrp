@@ -49,7 +49,7 @@ importlib-metadata==4.11.3
     #   virtualenv
 iniconfig==1.1.1
     # via pytest
-its-preselector @ git+https://github.com/NTIA/Preselector@0.0.1
+its-preselector @ git+https://github.com/NTIA/Preselector@1.0.0
     # via
     #   -r requirements.txt
     #   scos-actions
@@ -117,7 +117,7 @@ scipy==1.7.3
     # via
     #   -r requirements.txt
     #   scos-actions
-scos_actions @ git+https://github.com/NTIA/scos-actions@1.0.0
+scos_actions @ git+https://github.com/NTIA/scos-actions@2.0.0
     # via -r requirements.txt
 sigmf @ git+https://github.com/NTIA/SigMF.git@multi-recording-archive
     # via

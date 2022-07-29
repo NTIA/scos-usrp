@@ -17,11 +17,12 @@ from datetime import datetime
 import numpy as np
 from scos_actions import utils
 from scos_actions.hardware.sigan_iface import SignalAnalyzerInterface
+from scos_actions.settings import sensor_calibration
+from scos_actions.settings import sigan_calibration
 
 from scos_usrp import settings
-from scos_usrp.hardware import calibration
 from scos_usrp.hardware.mocks.usrp_block import MockUsrp
-from scos_usrp.hardware.tests.resources.utils import create_dummy_calibration
+
 
 logger = logging.getLogger(__name__)
 logger.debug(f"USRP_CONNECTION_ARGS = {settings.USRP_CONNECTION_ARGS}")
@@ -30,34 +31,16 @@ logger.debug(f"USRP_CONNECTION_ARGS = {settings.USRP_CONNECTION_ARGS}")
 # dynamic range performance
 VALID_GAINS = (0, 20, 40, 60)
 
-# Define the default calibration dicts
-DEFAULT_SIGAN_CALIBRATION = {
-    "gain_sigan": None,  # Defaults to gain setting
-    "enbw_sigan": None,  # Defaults to sample rate
-    "noise_figure_sigan": 0,
-    "1db_compression_sigan": 100,
-}
-
-DEFAULT_SENSOR_CALIBRATION = {
-    "gain_sensor": None,  # Defaults to sigan gain
-    "enbw_sensor": None,  # Defaults to sigan enbw
-    "noise_figure_sensor": None,  # Defaults to sigan noise figure
-    "1db_compression_sensor": None,  # Defaults to sigan compression + preselector gain
-    "gain_preselector": 0,
-    "noise_figure_preselector": 0,
-    "1db_compression_preselector": 100,
-}
-
 
 class USRPSignalAnalyzer(SignalAnalyzerInterface):
+
     @property
     def last_calibration_time(self):
         """Returns the last calibration time from calibration data."""
-        if self.sensor_calibration:
-            return utils.convert_string_to_millisecond_iso_format(
-                self.sensor_calibration.calibration_datetime
-            )
-        return None
+        return utils.convert_string_to_millisecond_iso_format(
+                sensor_calibration.calibration_datetime
+        )
+
 
     @property
     def overload(self):
@@ -70,28 +53,19 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
         0.01  # Ratio of samples above the ADC full range to trigger overload
     )
 
-    def __init__(
-        self,
-        sensor_cal_file=settings.SENSOR_CALIBRATION_FILE,
-        sigan_cal_file=settings.SIGAN_CALIBRATION_FILE,
-    ):
+    def __init__(self):
+        super().__init__()
         self.uhd = None
         self.usrp = None
         self._is_available = False
-
-        self.sensor_calibration_data = None
-        self.sigan_calibration_data = None
-        self.sensor_calibration = None
-        self.sigan_calibration = None
-
         self.lo_freq = None
         self.dsp_freq = None
         self._sigan_overload = False
         self._sensor_overload = False
         self._capture_time = None
-
+        self.requested_sample_rate = 0
         self.connect()
-        self.get_calibration(sensor_cal_file, sigan_cal_file)
+
 
     def connect(self):
         if self._is_available:
@@ -138,33 +112,6 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
         """Returns True if initialized and ready to make measurements, otherwise returns False."""
         return self._is_available
 
-    def get_calibration(self, sensor_cal_file, sigan_cal_file):
-        """Get calibration data from sensor_cal_file and sigan_cal_file."""
-        # Set the default calibration values
-        self.sensor_calibration_data = DEFAULT_SENSOR_CALIBRATION.copy()
-        self.sigan_calibration_data = DEFAULT_SIGAN_CALIBRATION.copy()
-
-        # Try and load sensor/sigan calibration data
-        if not settings.RUNNING_TESTS and not settings.MOCK_SIGAN:
-            try:
-                self.sensor_calibration = calibration.load_from_json(sensor_cal_file)
-            except Exception as err:
-                logger.error(
-                    "Unable to load sensor calibration data, reverting to none"
-                )
-                logger.exception(err)
-                self.sensor_calibration = None
-            try:
-                self.sigan_calibration = calibration.load_from_json(sigan_cal_file)
-            except Exception as err:
-                logger.error("Unable to load sigan calibration data, reverting to none")
-                logger.exception(err)
-                self.sigan_calibration = None
-        else:  # If in testing, create our own test files
-            dummy_calibration = create_dummy_calibration()
-            self.sensor_calibration = dummy_calibration
-            self.sigan_calibration = dummy_calibration
-
     @property
     def sample_rate(self):
         """Returns the currently configured sample rate in samples per second."""
@@ -177,12 +124,13 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
         :type sample_rate: float
         :param sample_rate: Sample rate in samples per second
         """
+        self.requested_sample_rate = rate
         self.usrp.set_rx_rate(rate)
         fs_MSps = self.sample_rate / 1e6
         logger.debug("set USRP sample rate: {:.2f} MSps".format(fs_MSps))
         # Set the clock rate based on calibration
-        if self.sigan_calibration is not None:
-            clock_rate = self.sigan_calibration.get_clock_rate(rate)
+        if sigan_calibration is not None:
+            clock_rate = sigan_calibration.get_clock_rate(rate)
         else:
             clock_rate = self.sample_rate
             # Maximize clock rate while keeping it under 40e6
@@ -264,81 +212,6 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
         msg = "set USRP gain: {:.1f} dB"
         logger.debug(msg.format(self.usrp.get_rx_gain()))
 
-    def recompute_calibration_data(self):
-        """Set the calibration data based on the currently tuning"""
-
-        # Try and get the sensor calibration data
-        self.sensor_calibration_data = DEFAULT_SENSOR_CALIBRATION.copy()
-        if self.sensor_calibration is not None:
-            self.sensor_calibration_data.update(
-                self.sensor_calibration.get_calibration_dict(
-                    sample_rate=self.sample_rate,
-                    lo_frequency=self.frequency,
-                    gain=self.gain,
-                )
-            )
-
-        # Try and get the sigan calibration data
-        self.sigan_calibration_data = DEFAULT_SIGAN_CALIBRATION.copy()
-        if self.sigan_calibration is not None:
-            self.sigan_calibration_data.update(
-                self.sigan_calibration.get_calibration_dict(
-                    sample_rate=self.sample_rate,
-                    lo_frequency=self.frequency,
-                    gain=self.gain,
-                )
-            )
-
-        # Catch any defaulting calibration values for the sigan
-        if self.sigan_calibration_data["gain_sigan"] is None:
-            self.sigan_calibration_data["gain_sigan"] = self.gain
-        if self.sigan_calibration_data["enbw_sigan"] is None:
-            self.sigan_calibration_data["enbw_sigan"] = self.sample_rate
-
-        # Catch any defaulting calibration values for the sensor
-        if self.sensor_calibration_data["gain_sensor"] is None:
-            self.sensor_calibration_data["gain_sensor"] = self.sigan_calibration_data[
-                "gain_sigan"
-            ]
-        if self.sensor_calibration_data["enbw_sensor"] is None:
-            self.sensor_calibration_data["enbw_sensor"] = self.sigan_calibration_data[
-                "enbw_sigan"
-            ]
-        if self.sensor_calibration_data["noise_figure_sensor"] is None:
-            self.sensor_calibration_data[
-                "noise_figure_sensor"
-            ] = self.sigan_calibration_data["noise_figure_sigan"]
-        if self.sensor_calibration_data["1db_compression_sensor"] is None:
-            self.sensor_calibration_data["1db_compression_sensor"] = (
-                self.sensor_calibration_data["gain_preselector"]
-                + self.sigan_calibration_data["1db_compression_sigan"]
-            )
-
-    def create_calibration_annotation(self):
-        """Creates the SigMF calibration annotation."""
-        annotation_md = {
-            "ntia-core:annotation_type": "CalibrationAnnotation",
-            "ntia-sensor:gain_sigan": self.sigan_calibration_data["gain_sigan"],
-            "ntia-sensor:noise_figure_sigan": self.sigan_calibration_data[
-                "noise_figure_sigan"
-            ],
-            "ntia-sensor:1db_compression_point_sigan": self.sigan_calibration_data[
-                "1db_compression_sigan"
-            ],
-            "ntia-sensor:enbw_sigan": self.sigan_calibration_data["enbw_sigan"],
-            "ntia-sensor:gain_preselector": self.sensor_calibration_data[
-                "gain_preselector"
-            ],
-            "ntia-sensor:noise_figure_sensor": self.sensor_calibration_data[
-                "noise_figure_sensor"
-            ],
-            "ntia-sensor:1db_compression_point_sensor": self.sensor_calibration_data[
-                "1db_compression_sensor"
-            ],
-            "ntia-sensor:enbw_sensor": self.sensor_calibration_data["enbw_sensor"],
-        }
-        return annotation_md
-
     def check_sensor_overload(self, data):
         """Check for sensor overload in the measurement data."""
         measured_data = data.astype(np.complex64)
@@ -355,7 +228,7 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
                 > self.sensor_calibration_data["1db_compression_sensor"]
             )
 
-    def acquire_time_domain_samples(self, num_samples, num_samples_skip=0, retries=5):
+    def acquire_time_domain_samples(self, num_samples, num_samples_skip=0, retries=5,gain_adjust=True):
         """Acquire num_samples_skip+num_samples samples and return the last num_samples
 
         :type num_samples: int
@@ -379,14 +252,18 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
         self._sigan_overload = False
         self._capture_time = None
         # Get the calibration data for the acquisition
-        self.recompute_calibration_data()
+        logger.debug('Using requested sample rate of ' + str(self.requested_sample_rate))
+        calibration_args = [self.requested_sample_rate, self.frequency, self.gain]
+        self.recompute_calibration_data(calibration_args)
         nsamps = int(num_samples)
         nskip = int(num_samples_skip)
 
         # Compute the linear gain
         db_gain = self.sensor_calibration_data["gain_sensor"]
-        linear_gain = 10 ** (db_gain / 20.0)
-
+        if gain_adjust:
+            linear_gain = 10 ** (db_gain / 20.0)
+        else:
+            linear_gain = 1
         # Try to acquire the samples
         max_retries = retries
         while True:
@@ -446,7 +323,6 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
                     "gain": self.gain,
                     "sample_rate": self.sample_rate,
                     "capture_time": self._capture_time,
-                    "calibration_annotation": self.create_calibration_annotation(),
                 }
                 return measurement_result
 

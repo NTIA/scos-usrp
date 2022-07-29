@@ -3,11 +3,6 @@
 import pytest
 
 from scos_usrp.hardware import sigan
-from scos_usrp.hardware.tests.resources.utils import (
-    create_dummy_calibration,
-    easy_gain,
-    is_close,
-)
 
 
 class TestUSRP:
@@ -40,6 +35,9 @@ class TestUSRP:
 
         max_retries = 5
         times_to_fail = 3
+        self.rx.sample_rate = 10000000.0
+        self.rx.frequency = 650000000.0
+        self.rx.gain = 40.0
         self.rx.usrp.set_times_to_fail_recv(times_to_fail)
 
         try:
@@ -61,7 +59,9 @@ class TestUSRP:
         max_retries = 5
         times_to_fail = 7
         self.rx.usrp.set_times_to_fail_recv(times_to_fail)
-
+        self.rx.sample_rate = 10000000.0
+        self.rx.frequency = 650000000.0
+        self.rx.gain = 40.0
         msg = "Acquisition failing {} times sequentially with {}\n"
         msg += "retries requested SHOULD have raised an error."
         msg = msg.format(times_to_fail, max_retries)
@@ -94,32 +94,6 @@ class TestUSRP:
         self.rx.tune_frequency(f_lo, f_dsp)
         assert f_lo == self.rx.lo_freq and f_dsp == self.rx.dsp_freq
 
-    def test_scaled_data_acquisition(self):
-        """Check that the samples are properly scaled"""
-        # Check that the setup was completed
-        assert self.setup_complete, "Setup was not completed"
-
-        # Do an arbitrary data collection
-        self.rx.sample_rate = int(10e6)
-        self.rx.frequency = 1e9
-        self.rx.gain = 20
-        measurement_result = self.rx.acquire_time_domain_samples(1000)
-        data = measurement_result["data"]
-
-        # The true value should be the 1 / linear gain
-        true_val = easy_gain(int(10e6), 1e9, 20) - 10
-        true_val = 10 ** (-1 * float(true_val) / 20)
-
-        # Get the observed value
-        observed_val = data[0]
-
-        # Assert the value
-        tolerance = 1e-5
-        msg = "Acquisition was not properly scaled.\n"
-        msg += "    Algorithm: {}\n".format(observed_val)
-        msg += "    Expected: {}\n".format(true_val)
-        msg += "    Tolerance: {}\r\n".format(tolerance)
-        assert is_close(true_val, observed_val, tolerance), msg
 
     def test_set_sample_rate_also_sets_clock_rate(self):
         """Setting sample_rate should adjust clock_rate"""
@@ -135,131 +109,6 @@ class TestUSRP:
 
         assert expected_clock_rate == observed_clock_rate
 
-    def check_defaulted_calibration_parameter(self, param, expected, observed):
-        msg = "Default calibration parameters were not properly set.\n"
-        msg += "    Parameter: {}\n".format(param)
-        msg += "    Expected: {}\n".format(expected)
-        msg += "    Observed: {}\r\n".format(observed)
-        assert expected == observed, msg
 
-    def test_defaulted_calibration_values(self):
-        """Ensure that default calibration values are loaded"""
 
-        # Save and clear the calibrations
-        sigan_calibration = self.rx.sigan_calibration
-        sensor_calibration = self.rx.sensor_calibration
-        self.rx.sigan_calibration = None
-        self.rx.sensor_calibration = None
 
-        # Create some dummy setups to ensure calibration updates
-        sample_rates = [10e6, 40e6, 1e6, 56e6]
-        gain_settings = [40, 60, 0, 60]
-        frequencies = [1000e6, 2000e6, 10e6, 1500e6]
-
-        # Run each set
-        for i in range(len(sample_rates)):
-            # Get the parameters for this run
-            sample_rate = sample_rates[i]
-            gain_setting = gain_settings[i]
-            frequency = frequencies[i]
-
-            # Setup the rx
-            self.rx.sample_rate = sample_rate
-            self.rx.gain = gain_setting
-            self.rx.frequency = frequency
-
-            # Recompute the calibration parameters
-            self.rx.recompute_calibration_data()
-
-            # Check the defaulted calibration parameters
-            self.check_defaulted_calibration_parameter(
-                "gain_sigan", gain_setting, self.rx.sigan_calibration_data["gain_sigan"]
-            )
-            self.check_defaulted_calibration_parameter(
-                "enbw_sigan", sample_rate, self.rx.sigan_calibration_data["enbw_sigan"]
-            )
-            self.check_defaulted_calibration_parameter(
-                "noise_figure_sigan",
-                0,
-                self.rx.sigan_calibration_data["noise_figure_sigan"],
-            )
-            self.check_defaulted_calibration_parameter(
-                "1db_compression_sigan",
-                100,
-                self.rx.sigan_calibration_data["1db_compression_sigan"],
-            )
-            self.check_defaulted_calibration_parameter(
-                "gain_sensor",
-                gain_setting,
-                self.rx.sensor_calibration_data["gain_sensor"],
-            )
-            self.check_defaulted_calibration_parameter(
-                "enbw_sensor",
-                sample_rate,
-                self.rx.sensor_calibration_data["enbw_sensor"],
-            )
-            self.check_defaulted_calibration_parameter(
-                "noise_figure_sensor",
-                0,
-                self.rx.sensor_calibration_data["noise_figure_sensor"],
-            )
-            self.check_defaulted_calibration_parameter(
-                "1db_compression_sensor",
-                100,
-                self.rx.sensor_calibration_data["1db_compression_sensor"],
-            )
-            self.check_defaulted_calibration_parameter(
-                "gain_preselector",
-                0,
-                self.rx.sensor_calibration_data["gain_preselector"],
-            )
-            self.check_defaulted_calibration_parameter(
-                "noise_figure_preselector",
-                0,
-                self.rx.sensor_calibration_data["noise_figure_preselector"],
-            )
-            self.check_defaulted_calibration_parameter(
-                "1db_compression_preselector",
-                100,
-                self.rx.sensor_calibration_data["1db_compression_preselector"],
-            )
-
-        # Reload the calibrations in case they're used elsewhere
-        self.rx.sigan_calibration = sigan_calibration
-        self.rx.sensor_calibration = sensor_calibration
-
-    def test_sigan_only_defaulting(self):
-        """Ensure that sensor calibration values default to sigan"""
-
-        # Load an empty sensor calibration
-        self.rx.sensor_calibration = create_dummy_calibration(empty_cal=True)
-
-        # Create some dummy setups to ensure calibration updates
-        sample_rates = [10e6, 40e6, 1e6, 56e6]
-        gain_settings = [40, 60, 0, 60]
-        frequencies = [1000e6, 2000e6, 10e6, 1500e6]
-
-        # Run each set
-        for i in range(len(sample_rates)):
-            # Get the parameters for this run
-            sample_rate = sample_rates[i]
-            gain_setting = gain_settings[i]
-            frequency = frequencies[i]
-
-            # Setup the rx
-            self.rx.sample_rate = sample_rate
-            self.rx.gain = gain_setting
-            self.rx.frequency = frequency
-
-            # Recompute the calibration parameters
-            self.rx.recompute_calibration_data()
-
-            # Check the defaulted calibration parameters
-            self.check_defaulted_calibration_parameter(
-                "gain_sensor",
-                self.rx.sigan_calibration_data["gain_sigan"],
-                self.rx.sensor_calibration_data["gain_sensor"],
-            )
-
-        # Reload the dummy sensor calibration in case they're used elsewhere
-        self.rx.sensor_calibration = create_dummy_calibration()
