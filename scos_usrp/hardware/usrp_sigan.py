@@ -251,16 +251,17 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
         """
         self._sigan_overload = False
         self._capture_time = None
-        # Get the calibration data for the acquisition
         logger.debug('Using requested sample rate of ' + str(self.requested_sample_rate))
-        calibration_args = [self.requested_sample_rate, self.frequency, self.gain]
-        self.recompute_calibration_data(calibration_args)
+        
         nsamps = int(num_samples)
         nskip = int(num_samples_skip)
 
-        # Compute the linear gain
-        db_gain = self.sensor_calibration_data["gain_sensor"]
         if gain_adjust:
+            # Get the calibration data for the acquisition
+            calibration_args = [self.requested_sample_rate, self.frequency, self.gain]
+            self.recompute_calibration_data(calibration_args)
+            # Compute the linear gain
+            db_gain = self.sensor_calibration_data["gain_sensor"]
             linear_gain = 10 ** (db_gain / 20.0)
         else:
             linear_gain = 1
