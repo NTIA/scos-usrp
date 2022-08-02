@@ -17,12 +17,10 @@ from datetime import datetime
 import numpy as np
 from scos_actions import utils
 from scos_actions.hardware.sigan_iface import SignalAnalyzerInterface
-from scos_actions.settings import sensor_calibration
-from scos_actions.settings import sigan_calibration
+from scos_actions.settings import sensor_calibration, sigan_calibration
 
 from scos_usrp import settings
 from scos_usrp.hardware.mocks.usrp_block import MockUsrp
-
 
 logger = logging.getLogger(__name__)
 logger.debug(f"USRP_CONNECTION_ARGS = {settings.USRP_CONNECTION_ARGS}")
@@ -33,14 +31,12 @@ VALID_GAINS = (0, 20, 40, 60)
 
 
 class USRPSignalAnalyzer(SignalAnalyzerInterface):
-
     @property
     def last_calibration_time(self):
         """Returns the last calibration time from calibration data."""
         return utils.convert_string_to_millisecond_iso_format(
-                sensor_calibration.calibration_datetime
+            sensor_calibration.calibration_datetime
         )
-
 
     @property
     def overload(self):
@@ -65,7 +61,6 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
         self._capture_time = None
         self.requested_sample_rate = 0
         self.connect()
-
 
     def connect(self):
         if self._is_available:
@@ -228,7 +223,9 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
                 > self.sensor_calibration_data["1db_compression_sensor"]
             )
 
-    def acquire_time_domain_samples(self, num_samples, num_samples_skip=0, retries=5,gain_adjust=True):
+    def acquire_time_domain_samples(
+        self, num_samples, num_samples_skip=0, retries=5, gain_adjust=True
+    ):
         """Acquire num_samples_skip+num_samples samples and return the last num_samples
 
         :type num_samples: int
@@ -251,8 +248,10 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
         """
         self._sigan_overload = False
         self._capture_time = None
-        logger.debug('Using requested sample rate of ' + str(self.requested_sample_rate))
-        
+        logger.debug(
+            "Using requested sample rate of " + str(self.requested_sample_rate)
+        )
+
         nsamps = int(num_samples)
         nskip = int(num_samples_skip)
 
