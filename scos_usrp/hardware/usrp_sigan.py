@@ -65,7 +65,6 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
         self._capture_time = None
         self.requested_sample_rate = 0
         self.connect()
-        register_component_with_status(self.__class__, component=self)
 
     def connect(self):
         if self._is_available:
