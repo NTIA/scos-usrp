@@ -15,14 +15,15 @@ import logging
 from datetime import datetime
 
 import numpy as np
+
 from scos_actions import utils
+from scos_actions.actions.interfaces.signals import register_component_with_status
 from scos_actions.hardware.sigan_iface import SignalAnalyzerInterface
 from scos_actions.settings import sensor_calibration
 from scos_actions.settings import sigan_calibration
 
 from scos_usrp import settings
 from scos_usrp.hardware.mocks.usrp_block import MockUsrp
-
 
 logger = logging.getLogger(__name__)
 logger.debug(f"USRP_CONNECTION_ARGS = {settings.USRP_CONNECTION_ARGS}")
@@ -38,9 +39,8 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
     def last_calibration_time(self):
         """Returns the last calibration time from calibration data."""
         return utils.convert_string_to_millisecond_iso_format(
-                sensor_calibration.calibration_datetime
+            sensor_calibration.calibration_datetime
         )
-
 
     @property
     def overload(self):
@@ -65,7 +65,7 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
         self._capture_time = None
         self.requested_sample_rate = 0
         self.connect()
-
+        register_component_with_status(self.__class__, component=self)
 
     def connect(self):
         if self._is_available:
@@ -218,17 +218,17 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
 
         time_domain_avg_power = 10 * np.log10(np.mean(np.abs(measured_data) ** 2))
         time_domain_avg_power += (
-            10 * np.log10(1 / (2 * 50)) + 30
+                10 * np.log10(1 / (2 * 50)) + 30
         )  # Convert log(V^2) to dBm
         self._sensor_overload = False
         # explicitly check is not None since 1db compression could be 0
         if self.sensor_calibration_data["1db_compression_sensor"] is not None:
             self._sensor_overload = (
-                time_domain_avg_power
-                > self.sensor_calibration_data["1db_compression_sensor"]
+                    time_domain_avg_power
+                    > self.sensor_calibration_data["1db_compression_sensor"]
             )
 
-    def acquire_time_domain_samples(self, num_samples, num_samples_skip=0, retries=5,gain_adjust=True):
+    def acquire_time_domain_samples(self, num_samples, num_samples_skip=0, retries=5, gain_adjust=True):
         """Acquire num_samples_skip+num_samples samples and return the last num_samples
 
         :type num_samples: int
