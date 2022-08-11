@@ -10,7 +10,7 @@ certifi==2021.10.8
     # via requests
 charset-normalizer==2.0.12
     # via requests
-django==3.2.12
+django==3.2.15
     # via
     #   -r requirements.in
     #   scos-actions
@@ -56,7 +56,5 @@ six==1.16.0
     #   sigmf
 sqlparse==0.4.2
     # via django
-typing-extensions==4.1.1
-    # via asgiref
 urllib3==1.26.9
     # via requests
