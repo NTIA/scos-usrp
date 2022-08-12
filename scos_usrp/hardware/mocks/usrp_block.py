@@ -19,8 +19,8 @@ class MockUsrp(object):
 
         # Simulate returning less than the requested number of samples from
         # recv_num_samps method
-        self.times_to_fail_recv = 0
-        self.times_failed_recv = 0
+        self.times_to_fail = 0
+        self.times_failed = 0
 
         self.randomize_values = randomize_values
 
@@ -28,8 +28,8 @@ class MockUsrp(object):
         self.auto_dc_offset = val
 
     def recv_num_samps(self, n, fc, fs, channels, gain):
-        if self.times_failed_recv < self.times_to_fail_recv:
-            self.times_failed_recv += 1
+        if self.times_failed < self.times_to_fail:
+            self.times_failed += 1
             return np.ones((1, 0), dtype=np.complex64)
 
         if self.randomize_values:
@@ -42,9 +42,9 @@ class MockUsrp(object):
         else:
             return np.ones((1, n), dtype=np.complex64)
 
-    def set_times_to_fail_recv(self, n):
-        self.times_to_fail_recv = n
-        self.times_failed_recv = 0
+    def set_times_to_fail(self, n):
+        self.times_to_fail = n
+        self.times_failed = 0
 
     def get_rx_freq(self):
         return self.f_lo + self.f_dsp
