@@ -333,20 +333,12 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
         if not self.is_available:
             return False
 
-        # arbitrary number of samples to acquire to check health of usrp
-        # keep above ~70k to catch previous errors seen at ~70k
-        requested_samples = 100_000
-
         try:
-            measurement_result = self.acquire_time_domain_samples(requested_samples)
-            data = measurement_result["data"]
+            radio_config = self.usrp.get_pp_string()
+            logger.debug('Radio config: ' + radio_config)
         except Exception as e:
-            logger.error("Unable to acquire samples from the USRP")
+            logger.error("Unable to obtain radio configuration")
             logger.error(e)
-            return False
-
-        if not len(data) == requested_samples:
-            logger.error("USRP data doesn't match request")
             return False
 
         return True
