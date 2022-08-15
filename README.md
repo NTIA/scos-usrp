@@ -143,6 +143,12 @@ markdownlint. Markdownlint will show an error message if it detects any style is
 markdown files. See [.pre-commit-config.yaml](.pre-commit-config.yaml) for the list of
 pre-commit tools enabled for this repository.
 
+### Building the Base Image
+
+```bash
+docker build -f docker/Dockerfile-uhd -t smsntia/uhd_b2xx_py3 .
+```
+
 ## License
 
 See [LICENSE](LICENSE.md).
