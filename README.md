@@ -143,10 +143,15 @@ markdownlint. Markdownlint will show an error message if it detects any style is
 markdown files. See [.pre-commit-config.yaml](.pre-commit-config.yaml) for the list of
 pre-commit tools enabled for this repository.
 
-### Building the Base Image
+### Updating the scos_usrp_uhd package
+
+Run the following commands to build, tag, and push the docker image to the Github
+Container Registry. Replace X.X.X with the desired version number.
 
 ```bash
-docker build -f docker/Dockerfile-uhd -t smsntia/uhd_b2xx_py3 .
+docker build -f docker/Dockerfile-uhd -t scos_usrp_uhd .
+docker tag scos_usrp_uhd ghcr.io/ntia/scos-usrp/scos_usrp_uhd:X.X.X
+docker push ghcr.io/ntia/scos-usrp/scos_usrp_uhd:X.X.X.
 ```
 
 ## License
