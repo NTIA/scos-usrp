@@ -8,7 +8,7 @@ tune_result_params = ["actual_dsp_freq", "actual_rf_freq"]
 MockTuneResult = namedtuple("MockTuneResult", tune_result_params)
 
 
-class MockUsrp(object):
+class MockUsrp:
     def __init__(self, randomize_values=False):
         self.auto_dc_offset = False
         self.f_lo = 700e6
