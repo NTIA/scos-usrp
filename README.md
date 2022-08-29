@@ -53,55 +53,47 @@ Below are steps to run scos-sensor with the scos-usrp plugin:
 
 ## Development
 
+
 ### Requirements and Configuration
 
-Requires pip>=18.1 (upgrade using `python3 -m pip install --upgrade pip`) and
-python>=3.7.
-
-It is highly recommended that you first initialize a virtual development environment
-using a tool such a `conda` or `venv`. The following commands create a virtual
-environment using `venv` and install the required dependencies for development and
-testing.
+Set up a development environment using a tool like [Conda](https://docs.conda.io/en/latest/)
+or [venv](https://docs.python.org/3/library/venv.html#module-venv), with `python>=3.8`. This repository dependends on the Python UHD library. In Ubuntu, you can get this by installing the `python3-uhd` package. Then, you can get access to this package in your 'venv' virtual environment using the `--system-site-packages` option. Then,
+from the cloned directory, install the development dependencies by running:
 
 ```bash
-python3 -m venv ./venv
-source venv/bin/activate
-python3 -m pip install --upgrade pip # upgrade to pip>=18.1
-python3 -m pip install -r requirements-dev.txt
+pip install .[dev]
 ```
 
-#### Using pip-tools
-
-It is recommended to keep direct dependencies in a separate file. The direct
-dependencies are in the requirements.in and requirements-dev.in files. Then pip-tools
-can be used to generate files with all the dependencies and transitive dependencies
-(sub-dependencies). The files containing all the dependencies are in requirements.txt
-and requirements-dev.txt. Run the following in the virtual environment to install
-pip-tools.
+This will install the project itself, along with development dependencies for pre-commit
+hooks, building distributions, and running tests. Set up pre-commit, which runs
+auto-formatting and code-checking automatically when you make a commit, by running:
 
 ```bash
-python -m pip install pip-tools
+pre-commit install
 ```
 
-To update requirements.txt after modifying requirements.in:
+The pre-commit tool will auto-format Python code using [Black](https://github.com/psf/black)
+and [isort](https://github.com/pycqa/isort). Other pre-commit hooks are also enabled, and
+can be found in [`.pre-commit-config.yaml`](.pre-commit-config.yaml).
+
+### Building New Releases
+
+This project uses [Hatchling](https://github.com/pypa/hatch/tree/master/backend) as a
+backend. Hatchling makes versioning and building new releases easy. The package version can
+be updated easily by using any of the following commands.
 
 ```bash
-pip-compile requirements.in
+hatchling version major   # 1.0.0 -> 2.0.0
+hatchling version minor   # 1.0.0 -> 1.1.0
+hatchling version micro   # 1.0.0 -> 1.0.1
+hatchling version "X.X.X" # 1.0.0 -> X.X.X
 ```
 
-To update requirements-dev.txt after modifying requirements.in or requirements-dev.in:
+To build a new release (both wheel and sdist/tarball), run:
 
 ```bash
-pip-compile requirements-dev.in
+hatchling build
 ```
-
-Use pip-sync to match virtual environment to requirements-dev.txt:
-
-```bash
-pip-sync requirements.txt requirements-dev.txt
-```
-
-For more information about pip-tools, see <https://pip-tools.readthedocs.io/en/latest/#>
 
 ### Running Tests
 
