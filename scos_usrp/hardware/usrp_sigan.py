@@ -15,12 +15,10 @@ import logging
 from datetime import datetime
 
 import numpy as np
-
 from scos_actions import utils
 from scos_actions.actions.interfaces.signals import register_component_with_status
 from scos_actions.hardware.sigan_iface import SignalAnalyzerInterface
-from scos_actions.settings import sensor_calibration
-from scos_actions.settings import sigan_calibration
+from scos_actions.settings import sensor_calibration, sigan_calibration
 
 from scos_usrp import settings
 from scos_usrp.hardware.mocks.usrp_block import MockUsrp
@@ -34,7 +32,6 @@ VALID_GAINS = (0, 20, 40, 60)
 
 
 class USRPSignalAnalyzer(SignalAnalyzerInterface):
-
     @property
     def last_calibration_time(self):
         """Returns the last calibration time from calibration data."""
@@ -217,17 +214,19 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
 
         time_domain_avg_power = 10 * np.log10(np.mean(np.abs(measured_data) ** 2))
         time_domain_avg_power += (
-                10 * np.log10(1 / (2 * 50)) + 30
+            10 * np.log10(1 / (2 * 50)) + 30
         )  # Convert log(V^2) to dBm
         self._sensor_overload = False
         # explicitly check is not None since 1db compression could be 0
         if self.sensor_calibration_data["1db_compression_sensor"] is not None:
             self._sensor_overload = (
-                    time_domain_avg_power
-                    > self.sensor_calibration_data["1db_compression_sensor"]
+                time_domain_avg_power
+                > self.sensor_calibration_data["1db_compression_sensor"]
             )
 
-    def acquire_time_domain_samples(self, num_samples, num_samples_skip=0, retries=5, gain_adjust=True):
+    def acquire_time_domain_samples(
+        self, num_samples, num_samples_skip=0, retries=5, gain_adjust=True
+    ):
         """Acquire num_samples_skip+num_samples samples and return the last num_samples
 
         :type num_samples: int
@@ -251,7 +250,9 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
         self._sigan_overload = False
         self._capture_time = None
         # Get the calibration data for the acquisition
-        logger.debug('Using requested sample rate of ' + str(self.requested_sample_rate))
+        logger.debug(
+            "Using requested sample rate of " + str(self.requested_sample_rate)
+        )
         calibration_args = [self.requested_sample_rate, self.frequency, self.gain]
         self.recompute_calibration_data(calibration_args)
         nsamps = int(num_samples)
@@ -335,7 +336,7 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
 
         try:
             radio_config = self.usrp.get_pp_string()
-            logger.debug('Radio config: ' + radio_config)
+            logger.debug("Radio config: " + radio_config)
         except Exception as e:
             logger.error("Unable to obtain radio configuration")
             logger.error(e)
