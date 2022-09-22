@@ -94,7 +94,6 @@ class TestUSRP:
         self.rx.tune_frequency(f_lo, f_dsp)
         assert f_lo == self.rx.lo_freq and f_dsp == self.rx.dsp_freq
 
-
     def test_set_sample_rate_also_sets_clock_rate(self):
         """Setting sample_rate should adjust clock_rate"""
 
@@ -108,7 +107,3 @@ class TestUSRP:
         observed_clock_rate = self.rx.clock_rate
 
         assert expected_clock_rate == observed_clock_rate
-
-
-
-
