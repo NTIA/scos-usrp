@@ -326,7 +326,6 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
 
     @property
     def healthy(self):
-        """Check for ability to acquire samples from the signal analyzer."""
         logger.debug("Performing USRP health check")
 
         if not self.is_available:
