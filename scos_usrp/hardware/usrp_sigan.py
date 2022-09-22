@@ -12,13 +12,11 @@ Example usage:
 """
 
 import logging
-from datetime import datetime
 
 import numpy as np
 from scos_actions import utils
-from scos_actions.actions.interfaces.signals import register_component_with_status
+from scos_actions.calibration import sensor_calibration, sigan_calibration
 from scos_actions.hardware.sigan_iface import SignalAnalyzerInterface
-from scos_actions.settings import sensor_calibration, sigan_calibration
 
 from scos_usrp import settings
 from scos_usrp.hardware.mocks.usrp_block import MockUsrp
