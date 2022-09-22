@@ -9,7 +9,12 @@ from scos_usrp.settings import ACTION_DEFINITIONS_DIR
 
 logger = logging.getLogger(__name__)
 
-actions = {"monitor_usrp": MonitorSignalAnalyzer(sigan), "sync_gps": SyncGps(gps)}
+actions = {
+    "monitor_usrp": MonitorSignalAnalyzer(
+        parameters={"name": "monitor_usrp"}, sigan=sigan
+    ),
+    "sync_gps": SyncGps(gps, {"name": "sync_gps"}, sigan),
+}
 
 logger.debug("scos_usrp: ACTION_DEFINITIONS_DIR =  " + ACTION_DEFINITIONS_DIR)
 yaml_actions, yaml_test_actions = init(
