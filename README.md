@@ -10,8 +10,8 @@ https://github.com/NTIA/scos-sensor/blob/master/README.md#actions-and-hardware-s
 ) sections which explain the scos-sensor plugin architecture.
 
 This repository includes many 700MHz band actions in [scos_usrp/configs/actions](
-scos_usrp/configs/actions). Action classes, SignalAnalyzerInterface, GPSInterface, and
-signals are used from [scos_actions](https://github.com/NTIA/scos-actions).
+scos_usrp/configs/actions). Action classes, SignalAnalyzerInterface,
+GPSInterface, and signals are used from [scos_actions](https://github.com/NTIA/scos-actions).
 
 For information on adding actions, see the [scos_actions documentation](
 https://github.com/NTIA/scos-actions/blob/master/README.md#adding-actions).
@@ -26,8 +26,8 @@ https://github.com/NTIA/scos-actions/blob/master/README.md#adding-actions).
 
 ## Overview of Repo Structure
 
-- scos_usrp/configs: This folder contains the yaml files with the parameters used to
-  initialize the USRP supported actions and sample calibration files.
+- scos_usrp/configs: This folder contains the yaml files with the parameters
+used to initialize the USRP supported actions and sample calibration files.
 - scos_usrp/discover: This includes the code to read yaml files and make actions
   available to scos-sensor.
 - scos_usrp/hardware: This includes the USRP implementation of the signal analyzer
@@ -53,12 +53,15 @@ Below are steps to run scos-sensor with the scos-usrp plugin:
 
 ## Development
 
-
 ### Requirements and Configuration
 
 Set up a development environment using a tool like [Conda](https://docs.conda.io/en/latest/)
-or [venv](https://docs.python.org/3/library/venv.html#module-venv), with `python>=3.8`. This repository dependends on the Python UHD library. In Ubuntu, you can get this by installing the `python3-uhd` package. Then, you can get access to this package in your 'venv' virtual environment using the `--system-site-packages` option. Then,
-from the cloned directory, install the development dependencies by running:
+or [venv](https://docs.python.org/3/library/venv.html#module-venv),
+with `python>=3.8`. This repository dependends on the Python UHD library. In
+Ubuntu, you can get this by installing the `python3-uhd` package. Then, you can
+get access to this package in your 'venv' virtual environment using the
+`--system-site-packages` option. Then, from the cloned directory, install the
+development dependencies by running:
 
 ```bash
 pip install .[dev]
@@ -73,14 +76,14 @@ pre-commit install
 ```
 
 The pre-commit tool will auto-format Python code using [Black](https://github.com/psf/black)
-and [isort](https://github.com/pycqa/isort). Other pre-commit hooks are also enabled, and
-can be found in [`.pre-commit-config.yaml`](.pre-commit-config.yaml).
+and [isort](https://github.com/pycqa/isort). Other pre-commit hooks are also
+enabled, and can be found in [`.pre-commit-config.yaml`](.pre-commit-config.yaml).
 
 ### Building New Releases
 
-This project uses [Hatchling](https://github.com/pypa/hatch/tree/master/backend) as a
-backend. Hatchling makes versioning and building new releases easy. The package version can
-be updated easily by using any of the following commands.
+This project uses [Hatchling](https://github.com/pypa/hatch/tree/master/backend)
+as a backend. Hatchling makes versioning and building new releases easy. The
+package version can be updated easily by using any of the following commands.
 
 ```bash
 hatchling version major   # 1.0.0 -> 2.0.0
@@ -116,8 +119,8 @@ sorting is handled by isort.
 There are several ways to autoformat your code before committing. First, IDE
 integration with on-save hooks is very useful. Second, if you've already pip-installed
 the dev requirements from the section above, you already have a utility called
-pre-commit installed that will automate setting up this project's git pre-commit hooks.
-Simply type the following once, and each time you make a commit, it will be
+pre-commit installed that will automate setting up this project's git pre-commit
+hooks. Simply type the following once, and each time you make a commit, it will be
 appropriately autoformatted.
 
 ```bash
@@ -131,9 +134,9 @@ pre-commit run --all-files
 ```
 
 In addition to Black and isort, various other pre-commit tools are enabled including
-markdownlint. Markdownlint will show an error message if it detects any style issues in
-markdown files. See [.pre-commit-config.yaml](.pre-commit-config.yaml) for the list of
-pre-commit tools enabled for this repository.
+markdownlint. Markdownlint will show an error message if it detects any style
+issues in markdown files. See [.pre-commit-config.yaml](.pre-commit-config.yaml)
+for the list of pre-commit tools enabled for this repository.
 
 ### Updating the scos_usrp_uhd package
 
