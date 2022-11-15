@@ -65,3 +65,6 @@ allow-direct-references = true
 
 [tool.hatch.version]
 path = "scos_usrp/__init__.py"
+
+[tool.isort]
+known_third_party = ["django", "environs", "numpy", "pytest", "scos_actions"]
