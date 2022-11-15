@@ -2,7 +2,7 @@ import json
 import time
 
 import numpy as np
-from scos_actions.actions.interfaces.signals import measurement_action_completed
+from scos_actions.signals import measurement_action_completed
 
 from scos_usrp.discover import actions
 
