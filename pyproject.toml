@@ -47,10 +47,13 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+test = [
+    "pytest>=7.1.2",
+]
 dev = [
+    "scos-usrp[test]",
     "hatchling>=1.6.0,<2.0",
     "pre-commit>=2.20.0",
-    "pytest>=7.1.2",
 ]
 
 [project.urls]

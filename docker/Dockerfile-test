@@ -15,6 +15,6 @@ COPY ./ /src
 
 ARG DOCKER_GIT_CREDENTIALS
 RUN python3 -m pip install --upgrade pip
-RUN python3 -m pip install --no-cache-dir .[dev]
+RUN python3 -m pip install --no-cache-dir .[test]
 
 ENTRYPOINT ["pytest"]
