@@ -38,7 +38,7 @@ class TestUSRP:
         self.rx.sample_rate = 10000000.0
         self.rx.frequency = 650000000.0
         self.rx.gain = 40.0
-        self.rx.usrp.set_times_to_fail_recv(times_to_fail)
+        self.rx.usrp.set_times_to_fail(times_to_fail)
 
         try:
             self.rx.acquire_time_domain_samples(1000, retries=max_retries)
@@ -48,7 +48,7 @@ class TestUSRP:
             msg = msg.format(times_to_fail, max_retries)
             pytest.fail(msg)
 
-        self.rx.usrp.set_times_to_fail_recv(0)
+        self.rx.usrp.set_times_to_fail(0)
 
     def test_acquire_samples_fails_when_over_max_retries(self):
         """After `max_retries`, an error should be thrown."""
@@ -58,7 +58,7 @@ class TestUSRP:
 
         max_retries = 5
         times_to_fail = 7
-        self.rx.usrp.set_times_to_fail_recv(times_to_fail)
+        self.rx.usrp.set_times_to_fail(times_to_fail)
         self.rx.sample_rate = 10000000.0
         self.rx.frequency = 650000000.0
         self.rx.gain = 40.0
@@ -69,7 +69,7 @@ class TestUSRP:
             self.rx.acquire_time_domain_samples(1000, 1000, max_retries)
             pytest.fail(msg)
 
-        self.rx.usrp.set_times_to_fail_recv(0)
+        self.rx.usrp.set_times_to_fail(0)
 
     def test_tune_result(self):
         """Check that the tuning is correct"""

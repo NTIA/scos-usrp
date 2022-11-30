@@ -2,7 +2,7 @@ import json
 import time
 
 import numpy as np
-from scos_actions.actions.interfaces.signals import measurement_action_completed
+from scos_actions.signals import measurement_action_completed
 
 from scos_usrp.discover import actions
 
@@ -38,7 +38,7 @@ def callback(sender, **kwargs):
 
 
 measurement_action_completed.connect(callback)
-iq_action(schedule_entry_json, 1, sensor)
+iq_action(schedule_entry_json, 1)
 number_of_zeros = len([x for x in _data if x == 0.0])
 print(f"number_of_zeros = {number_of_zeros}")
 print("metadata:")
