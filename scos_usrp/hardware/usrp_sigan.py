@@ -324,7 +324,6 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
                 }
                 return measurement_result
 
-    @property
     def healthy(self):
         logger.debug("Performing USRP health check")
 
