@@ -253,7 +253,8 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
         )
         calibration_args = [self.requested_sample_rate, self.frequency, self.gain]
         logger.debug(
-            "Calling recompute_cal_data with args " + ", ".join(calibration_args)
+            "Calling recompute_cal_data with args "
+            + ", ".join([str(x) for x in calibration_args])
         )
         self.recompute_sensor_calibration_data(calibration_args)
         self.recompute_sigan_calibration_data(calibration_args)
@@ -266,7 +267,7 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
             + str("gain_sensor" in self.sensor_calibration_data)
         )
         db_gain = self.sensor_calibration_data["gain_sensor"]
-        logger.debug("using cal gain " + db_gain)
+        logger.debug("using cal gain " + str(db_gain))
         if gain_adjust:
             linear_gain = 10 ** (db_gain / 20.0)
         else:
