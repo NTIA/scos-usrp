@@ -255,7 +255,8 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
         logger.debug(
             "Calling recompute_cal_data with args " + ", ".join(calibration_args)
         )
-        self.recompute_calibration_data(calibration_args)
+        self.recompute_sensor_calibration_data(calibration_args)
+        self.recompute_sigan_calibration_data(calibration_args)
         nsamps = int(num_samples)
         nskip = int(num_samples_skip)
 
