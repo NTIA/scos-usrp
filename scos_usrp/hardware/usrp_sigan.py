@@ -252,12 +252,20 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
             "Using requested sample rate of " + str(self.requested_sample_rate)
         )
         calibration_args = [self.requested_sample_rate, self.frequency, self.gain]
+        logger.debug(
+            "Calling recompute_cal_data with args " + ", ".join(calibration_args)
+        )
         self.recompute_calibration_data(calibration_args)
         nsamps = int(num_samples)
         nskip = int(num_samples_skip)
 
         # Compute the linear gain
+        logger.debug(
+            "gain_sensor in cal data = "
+            + str("gain_sensor" in self.sensor_calibration_data)
+        )
         db_gain = self.sensor_calibration_data["gain_sensor"]
+        logger.debug("using cal gain " + db_gain)
         if gain_adjust:
             linear_gain = 10 ** (db_gain / 20.0)
         else:
