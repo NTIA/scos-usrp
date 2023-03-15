@@ -8,6 +8,7 @@ env = Env()
 
 CONFIG_DIR = path.join(path.dirname(path.abspath(__file__)), "configs")
 ACTION_DEFINITIONS_DIR = path.join(CONFIG_DIR, "actions")
+TEST_ACTION_DEFINITIONS_DIR = path.join(CONFIG_DIR, "test_actions")
 
 __cmd = path.split(sys.argv[0])[-1]
 RUNNING_TESTS = "test" in __cmd
