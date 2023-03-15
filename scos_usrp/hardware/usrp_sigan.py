@@ -223,7 +223,7 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
             )
 
     def acquire_time_domain_samples(
-        self, num_samples, num_samples_skip=0, retries=5, gain_adjust=True
+        self, num_samples, num_samples_skip=0, retries=5, cal_adjust=True
     ):
         """Acquire num_samples_skip+num_samples samples and return the last num_samples
 
@@ -251,24 +251,25 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
         logger.debug(
             "Using requested sample rate of " + str(self.requested_sample_rate)
         )
-        calibration_args = [self.requested_sample_rate, self.frequency, self.gain]
-        logger.debug(
-            "Calling recompute_cal_data with args "
-            + ", ".join([str(x) for x in calibration_args])
-        )
-        self.recompute_sensor_calibration_data(calibration_args)
-        self.recompute_sigan_calibration_data(calibration_args)
+
         nsamps = int(num_samples)
         nskip = int(num_samples_skip)
 
         # Compute the linear gain
-        logger.debug(
-            "gain_sensor in cal data = "
-            + str("gain_sensor" in self.sensor_calibration_data)
-        )
-        db_gain = self.sensor_calibration_data["gain_sensor"]
-        logger.debug("using cal gain " + str(db_gain))
-        if gain_adjust:
+        if cal_adjust:
+            calibration_args = [self.requested_sample_rate, self.frequency, self.gain]
+            logger.debug(
+                "Calling recompute_cal_data with args "
+                + ", ".join([str(x) for x in calibration_args])
+            )
+            self.recompute_sensor_calibration_data(calibration_args)
+            self.recompute_sigan_calibration_data(calibration_args)
+            logger.debug(
+                "gain_sensor in cal data = "
+                + str("gain_sensor" in self.sensor_calibration_data)
+            )
+            db_gain = self.sensor_calibration_data["gain_sensor"]
+            logger.debug("using cal gain " + str(db_gain))
             linear_gain = 10 ** (db_gain / 20.0)
         else:
             linear_gain = 1

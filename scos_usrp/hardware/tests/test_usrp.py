@@ -41,7 +41,9 @@ class TestUSRP:
         self.rx.usrp.set_times_to_fail(times_to_fail)
 
         try:
-            self.rx.acquire_time_domain_samples(1000, retries=max_retries)
+            self.rx.acquire_time_domain_samples(
+                1000, retries=max_retries, cal_adjust=False
+            )
         except RuntimeError:
             msg = "Acquisition failing {} times sequentially with {}\n"
             msg += "retries requested should NOT have raised an error."
@@ -66,7 +68,9 @@ class TestUSRP:
         msg += "retries requested SHOULD have raised an error."
         msg = msg.format(times_to_fail, max_retries)
         with pytest.raises(RuntimeError):
-            self.rx.acquire_time_domain_samples(1000, 1000, max_retries)
+            self.rx.acquire_time_domain_samples(
+                1000, 1000, max_retries, cal_adjust=False
+            )
             pytest.fail(msg)
 
         self.rx.usrp.set_times_to_fail(0)
