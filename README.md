@@ -100,8 +100,11 @@ hatchling build
 
 ### Running Tests
 
-Since the UHD drivers are required, a docker container is used for testing. [Install
-Docker](https://docs.docker.com/get-docker/).
+The tests can be run using pytest or Docker.
+
+Run the `pytest` command to test without Docker.
+
+Run the following commands to run in Docker.
 
 ```bash
 docker build -f docker/Dockerfile-test -t usrp_test .
