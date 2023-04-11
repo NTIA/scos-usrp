@@ -47,7 +47,8 @@ Below are steps to run scos-sensor with the scos-usrp plugin:
    folder. If you are using a different branch than master, change master in the
    following line to the branch you are using:
    `scos_usrp @ git+https://github.com/NTIA/scos-usrp@master#egg=scos_usrp.`
-1. Make sure `BASE_IMAGE` is set to `BASE_IMAGE=smsntia/uhd_b2xx_py3` in env file.
+1. Make sure `BASE_IMAGE` is set to
+   `BASE_IMAGE=ghcr.io/ntia/scos-usrp/scos_usrp_uhd:0.0.2` in env file.
 1. Get environment variables: `source ./env`
 1. Build and start containers: `docker-compose up -d --build --force-recreate`
 
