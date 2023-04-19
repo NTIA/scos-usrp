@@ -65,6 +65,7 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
         if self._is_available:
             return True
 
+        logger.debug(f"settings.RUNNING_TESTS = {settings.RUNNING_TESTS} and settings.MOCK_SIGAN = {settings.MOCK_SIGAN}")
         if settings.RUNNING_TESTS or settings.MOCK_SIGAN:
             logger.warning("Using mock USRP.")
             random = settings.MOCK_SIGAN_RANDOM
