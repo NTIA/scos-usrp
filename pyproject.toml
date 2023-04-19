@@ -43,7 +43,7 @@ dependencies = [
     "django>=3.2.15,<4.0",
     "environs>=9.0, <10.0",
     "numpy>=1.22.0",
-    "scos_actions @ git+https://github.com/NTIA/scos-actions@sea-metadata-v0.4",
+    "scos_actions @ git+https://github.com/NTIA/scos-actions@6.2.1",
 ]
 
 [project.optional-dependencies]
