@@ -43,10 +43,19 @@ Below are steps to run scos-sensor with the scos-usrp plugin:
 1. Navigate to scos-sensor: `cd scos-sensor`
 1. If it does not exist, create env file while in the root scos-sensor directory:
    `cp env.template ./env`
-1. Make sure the `scos_usrp` dependency is in `requirements.txt` in `scos-sensor/src`
-   folder. If you are using a different branch than master, change master in the
-   following line to the branch you are using:
-   `scos_usrp @ git+https://github.com/NTIA/scos-usrp@master#egg=scos_usrp.`
+1. Add the `scos_usrp` dependency in `requirements.in` in `scos-sensor/src`
+   folder and remove `scos_tekrsa`. If you are using a different branch than master,
+   change master in the following line to the branch or version you are using:
+   `scos_usrp @ git+https://github.com/NTIA/scos-usrp@master`.
+   Then run the commands to generate requirements.txt and requirements-dev.txt:
+   ```bash
+   pip-compile requirements.in
+   pip-compile requirements-dev.in
+   ```
+
+   Sync the dependencies to your virtual environment:
+   `pip-sync requirements.txt requirements-dev.txt`
+
 1. Make sure `BASE_IMAGE` is set to
    `BASE_IMAGE=ghcr.io/ntia/scos-usrp/scos_usrp_uhd:0.0.2` in env file.
 1. Get environment variables: `source ./env`
