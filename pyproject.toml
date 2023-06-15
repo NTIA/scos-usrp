@@ -43,7 +43,7 @@ dependencies = [
     "django>=3.2.18, <4.0",
     "environs>=9.5.0",
     "numpy>=1.22.0",
-    "scos_actions @ git+https://github.com/NTIA/scos-actions@6.2.3",
+    "scos_actions @ git+https://github.com/NTIA/scos-actions@test_sigmf",
 ]
 
 [project.optional-dependencies]
