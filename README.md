@@ -48,6 +48,7 @@ Below are steps to run scos-sensor with the scos-usrp plugin:
    change master in the following line to the branch or version you are using:
    `scos_usrp @ git+https://github.com/NTIA/scos-usrp@master`.
    Then run the commands to generate requirements.txt and requirements-dev.txt:
+
    ```bash
    pip-compile requirements.in
    pip-compile requirements-dev.in
@@ -168,4 +169,5 @@ See [LICENSE](LICENSE.md).
 
 ## Contact
 
-For technical questions about scos-usrp, contact Justin Haze, jhaze@ntia.gov
+For technical questions about scos-usrp, contact Justin Haze,
+[jhaze@ntia.gov](mailto:jhaze@ntia.gov)

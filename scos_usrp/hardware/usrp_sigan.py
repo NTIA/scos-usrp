@@ -65,7 +65,9 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
         if self._is_available:
             return True
 
-        logger.debug(f"settings.RUNNING_TESTS = {settings.RUNNING_TESTS} and settings.MOCK_SIGAN = {settings.MOCK_SIGAN}")
+        logger.debug(
+            f"settings.RUNNING_TESTS = {settings.RUNNING_TESTS} and settings.MOCK_SIGAN = {settings.MOCK_SIGAN}"
+        )
         if settings.RUNNING_TESTS or settings.MOCK_SIGAN:
             logger.warning("Using mock USRP.")
             random = settings.MOCK_SIGAN_RANDOM
@@ -217,10 +219,10 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
         )  # Convert log(V^2) to dBm
         self._sensor_overload = False
         # explicitly check is not None since 1db compression could be 0
-        if self.sensor_calibration_data["1db_compression_sensor"] is not None:
+        if self.sensor_calibration_data["1db_compression_point"] is not None:
             self._sensor_overload = (
                 time_domain_avg_power
-                > self.sensor_calibration_data["1db_compression_sensor"]
+                > self.sensor_calibration_data["1db_compression_point"]
             )
 
     def acquire_time_domain_samples(
@@ -266,10 +268,9 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
             self.recompute_sensor_calibration_data(calibration_args)
             self.recompute_sigan_calibration_data(calibration_args)
             logger.debug(
-                "gain_sensor in cal data = "
-                + str("gain_sensor" in self.sensor_calibration_data)
+                "gain in cal data = " + str("gain" in self.sensor_calibration_data)
             )
-            db_gain = self.sensor_calibration_data["gain_sensor"]
+            db_gain = self.sensor_calibration_data["gain"]
             logger.debug("using cal gain " + str(db_gain))
             linear_gain = 10 ** (db_gain / 20.0)
         else:
