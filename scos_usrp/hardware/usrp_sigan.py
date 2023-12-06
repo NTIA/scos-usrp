@@ -223,10 +223,10 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
         )  # Convert log(V^2) to dBm
         self._sensor_overload = False
         # explicitly check is not None since 1db compression could be 0
-        if self.sensor_calibration_data["1db_compression_sensor"] is not None:
+        if self.sensor_calibration_data["1db_compression_point"] is not None:
             self._sensor_overload = (
                 time_domain_avg_power
-                > self.sensor_calibration_data["1db_compression_sensor"]
+                > self.sensor_calibration_data["1db_compression_point"]
             )
 
     def acquire_time_domain_samples(
