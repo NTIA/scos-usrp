@@ -268,7 +268,7 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
         try:
             logger.debug(f"Using cal params: {cal_params}")
             if cal_params is not None:
-                cal_args = [vars(self)[f"_{p}"] for p in cal_params]
+                cal_args = [getattr(self, p) for p in cal_params]
             else:
                 cal_args = None
         except KeyError:
