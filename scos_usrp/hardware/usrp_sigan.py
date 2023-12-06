@@ -281,7 +281,7 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
         nskip = int(num_samples_skip)
 
         # Compute the linear gain
-        db_gain = self.sensor_calibration_data["gain_sensor"]
+        db_gain = self.sensor_calibration_data["gain"]
         if cal_adjust:
             linear_gain = 10 ** (db_gain / 20.0)
         else:
