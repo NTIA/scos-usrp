@@ -266,6 +266,7 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
             # Make it work for mock sigan/testing. Just match frequency.
             cal_params = [vars(self)["_frequency"]]
         try:
+            logger.debug(f"Using cal params: {cal_params}")
             if cal_params is not None:
                 cal_args = [vars(self)[f"_{p}"] for p in cal_params]
             else:
