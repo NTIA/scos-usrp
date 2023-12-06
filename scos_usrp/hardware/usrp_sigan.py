@@ -230,7 +230,7 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
             )
 
     def acquire_time_domain_samples(
-        self, num_samples, num_samples_skip=0, retries=5, gain_adjust=True
+        self, num_samples, num_samples_skip=0, retries=5, cal_adjust: bool = True
     ):
         """Acquire num_samples_skip+num_samples samples and return the last num_samples
 
@@ -275,7 +275,7 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
 
         # Compute the linear gain
         db_gain = self.sensor_calibration_data["gain_sensor"]
-        if gain_adjust:
+        if cal_adjust:
             linear_gain = 10 ** (db_gain / 20.0)
         else:
             linear_gain = 1
