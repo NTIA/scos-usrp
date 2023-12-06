@@ -269,7 +269,7 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
             raise Exception(
                 "One or more required cal parameters is not a valid sigan setting."
             )
-        self.recompute_calibration_data(calibration_args)
+        self.recompute_calibration_data(cal_params)
         nsamps = int(num_samples)
         nskip = int(num_samples_skip)
 
