@@ -48,7 +48,7 @@ Below are steps to run scos-sensor with the scos-usrp plugin:
    following line to the branch you are using:
    `scos_usrp @ git+https://github.com/NTIA/scos-usrp@master#egg=scos_usrp.`
 5. Make sure `BASE_IMAGE` is set to `BASE_IMAGE=ghcr.io/ntia/scos-usrp/scos_usrp_uhd:0.0.2`
-   in the nv file. This is a publicly available docker image with the necessary
+   in the env file. This is a publicly available docker image with the necessary
    UHD drivers hosted within the GitHub container registry.
 6. Get environment variables: `source ./env`
 7. Build and start containers: `docker-compose up -d --build --force-recreate`
