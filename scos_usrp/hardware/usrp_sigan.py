@@ -258,13 +258,10 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
         logger.debug(
             "Using requested sample rate of " + str(self.requested_sample_rate)
         )
-        cal_params = None
-        if not (settings.RUNNING_TESTS or settings.MOCK_SIGAN):
-            if sensor_calibration is not None:
-                cal_params = sensor_calibration.calibration_parameters
-        else:
-            # Make it work for mock sigan/testing. Just match frequency.
-            cal_params = [vars(self)["_frequency"]]
+        cal_params = []
+
+        if sensor_calibration is not None:
+            cal_params = sensor_calibration.calibration_parameters
         try:
             logger.debug(f"Using cal params: {cal_params}")
             if cal_params is not None:
@@ -275,7 +272,7 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
             raise Exception(
                 "One or more required cal parameters is not a valid sigan setting."
             )
-        logger.debug(f"Calibration arguments:{cal_args}" )
+        logger.debug(f"Calibration arguments:{cal_args}")
         self.recompute_sensor_calibration_data(cal_args)
         nsamps = int(num_samples)
         nskip = int(num_samples_skip)

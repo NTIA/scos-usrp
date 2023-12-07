@@ -40,16 +40,18 @@ Requires pip>=18.1 (upgrade using `python3 -m pip install --upgrade pip`).
 Below are steps to run scos-sensor with the scos-usrp plugin:
 
 1. Clone scos-sensor: `git clone https://github.com/NTIA/scos-sensor.git`
-1. Navigate to scos-sensor: `cd scos-sensor`
-1. If it does not exist, create env file while in the root scos-sensor directory:
+2. Navigate to scos-sensor: `cd scos-sensor`
+3. If it does not exist, create env file while in the root scos-sensor directory:
    `cp env.template ./env`
-1. Make sure the `scos_usrp` dependency is in `requirements.txt` in `scos-sensor/src`
+4. Make sure the `scos_usrp` dependency is in `requirements.txt` in `scos-sensor/src`
    folder. If you are using a different branch than master, change master in the
    following line to the branch you are using:
    `scos_usrp @ git+https://github.com/NTIA/scos-usrp@master#egg=scos_usrp.`
-1. Make sure `BASE_IMAGE` is set to `BASE_IMAGE=ghcr.io/ntia/scos-usrp/scos_usrp_uhd:0.0.2` in env file.
-1. Get environment variables: `source ./env`
-1. Build and start containers: `docker-compose up -d --build --force-recreate`
+5. Make sure `BASE_IMAGE` is set to `BASE_IMAGE=ghcr.io/ntia/scos-usrp/scos_usrp_uhd:0.0.2`
+   in the nv file. This is a publicly available docker image with the necessary
+   UHD drivers hosted within the GitHub container registry.
+6. Get environment variables: `source ./env`
+7. Build and start containers: `docker-compose up -d --build --force-recreate`
 
 ## Development
 
