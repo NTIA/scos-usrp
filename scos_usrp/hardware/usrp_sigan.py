@@ -264,8 +264,13 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
             cal_params = sensor_calibration.calibration_parameters
         try:
             logger.debug(f"Using cal params: {cal_params}")
+            cal_args = []
             if cal_params is not None:
-                cal_args = [getattr(self, p) for p in cal_params]
+                for p in cal_params:
+                    if p == "sample_rate":
+                        cal_args.append(self.requested_sample_rate)
+                    else:
+                        cal_args.append(getattr(self, p))
             else:
                 cal_args = None
         except KeyError:
