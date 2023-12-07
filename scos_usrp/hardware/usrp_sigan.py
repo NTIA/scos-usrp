@@ -224,7 +224,7 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
         self._sensor_overload = False
         # explicitly check is not None since 1db compression could be 0
         if self.sensor_calibration_data["1db_compression_point"] is not None:
-            self._sensor_overload = (
+            self._sensor_overload = bool(
                 time_domain_avg_power
                 > self.sensor_calibration_data["1db_compression_point"]
             )
