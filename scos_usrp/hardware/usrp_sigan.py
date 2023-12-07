@@ -63,7 +63,7 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
         self.requested_sample_rate = 0
         self.requested_frequency = 0
         self.requested_gain = 0
-        self.requested_clock_rate
+        self.requested_clock_rate = 0
         self.connect()
 
     def connect(self):
