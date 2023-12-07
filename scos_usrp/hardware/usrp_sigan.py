@@ -61,6 +61,8 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
         self._sensor_overload = False
         self._capture_time = None
         self.requested_sample_rate = 0
+        self.requested_frequency = 0
+        self.requested_gain = 0
         self.connect()
 
     def connect(self):
@@ -168,6 +170,7 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
         :type freq: float
         :param freq: Frequency in hertz
         """
+        self.requested_frequency = freq
         self.tune_frequency(freq)
 
     def tune_frequency(self, rf_freq, dsp_freq=0):
@@ -208,7 +211,7 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
             err += "Choose one of {!r}.".format(VALID_GAINS)
             logger.error(err)
             return
-
+        self.requested_gain = gain
         self.usrp.set_rx_gain(gain)
         msg = "set USRP gain: {:.1f} dB"
         logger.debug(msg.format(self.usrp.get_rx_gain()))
@@ -267,10 +270,7 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
             cal_args = []
             if cal_params is not None:
                 for p in cal_params:
-                    if p == "sample_rate":
-                        cal_args.append(self.requested_sample_rate)
-                    else:
-                        cal_args.append(getattr(self, p))
+                    cal_args.append(getattr(self, "requested_" + p))
             else:
                 cal_args = None
         except KeyError:
