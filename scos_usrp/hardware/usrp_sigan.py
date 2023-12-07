@@ -63,6 +63,7 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
         self.requested_sample_rate = 0
         self.requested_frequency = 0
         self.requested_gain = 0
+        self.requested_clock_rate
         self.connect()
 
     def connect(self):
@@ -154,6 +155,7 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
         :type rate: float
         :param rate: Clock rate in hertz
         """
+        self.requested_clock_rate = rate
         self.usrp.set_master_clock_rate(rate)
         clk_MHz = self.clock_rate / 1e6
         logger.debug("set USRP clock rate: {:.2f} MHz".format(clk_MHz))
