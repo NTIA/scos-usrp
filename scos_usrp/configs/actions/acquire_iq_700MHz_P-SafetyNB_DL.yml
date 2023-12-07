@@ -6,4 +6,4 @@ single_frequency_time_domain_iq:
   duration_ms: 10000
   nskip: 15.36e4
   classification: UNCLASSIFIED
-  calibration_adjust: false
+  calibration_adjust: true
