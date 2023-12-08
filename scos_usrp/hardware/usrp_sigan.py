@@ -18,6 +18,7 @@ from scos_actions import utils
 from scos_actions.calibration import sensor_calibration, sigan_calibration
 from scos_actions.hardware.sigan_iface import SignalAnalyzerInterface
 
+from scos_usrp import __version__ as SCOS_USRP_VERSION
 from scos_usrp import settings
 from scos_usrp.hardware.mocks.usrp_block import MockUsrp
 
@@ -50,6 +51,7 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
 
     def __init__(self):
         super().__init__()
+        self._plugin_version = SCOS_USRP_VERSION
         self.uhd = None
         self.usrp = None
         self._is_available = False
@@ -59,6 +61,9 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
         self._sensor_overload = False
         self._capture_time = None
         self.requested_sample_rate = 0
+        self.requested_frequency = 0
+        self.requested_gain = 0
+        self.requested_clock_rate = 0
         self.connect()
 
     def connect(self):
@@ -100,6 +105,11 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
             except Exception as err:
                 logger.exception(err)
                 return False
+
+    @property
+    def plugin_version(self):
+        """Returns the current version of scos-usrp."""
+        return self._plugin_version
 
     @property
     def is_available(self):
@@ -145,6 +155,7 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
         :type rate: float
         :param rate: Clock rate in hertz
         """
+        self.requested_clock_rate = rate
         self.usrp.set_master_clock_rate(rate)
         clk_MHz = self.clock_rate / 1e6
         logger.debug("set USRP clock rate: {:.2f} MHz".format(clk_MHz))
@@ -161,6 +172,7 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
         :type freq: float
         :param freq: Frequency in hertz
         """
+        self.requested_frequency = freq
         self.tune_frequency(freq)
 
     def tune_frequency(self, rf_freq, dsp_freq=0):
@@ -201,7 +213,7 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
             err += "Choose one of {!r}.".format(VALID_GAINS)
             logger.error(err)
             return
-
+        self.requested_gain = gain
         self.usrp.set_rx_gain(gain)
         msg = "set USRP gain: {:.1f} dB"
         logger.debug(msg.format(self.usrp.get_rx_gain()))
@@ -216,14 +228,14 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
         )  # Convert log(V^2) to dBm
         self._sensor_overload = False
         # explicitly check is not None since 1db compression could be 0
-        if self.sensor_calibration_data["1db_compression_sensor"] is not None:
-            self._sensor_overload = (
+        if self.sensor_calibration_data["1db_compression_point"] is not None:
+            self._sensor_overload = bool(
                 time_domain_avg_power
-                > self.sensor_calibration_data["1db_compression_sensor"]
+                > self.sensor_calibration_data["1db_compression_point"]
             )
 
     def acquire_time_domain_samples(
-        self, num_samples, num_samples_skip=0, retries=5, gain_adjust=True
+        self, num_samples, num_samples_skip=0, retries=5, cal_adjust: bool = True
     ):
         """Acquire num_samples_skip+num_samples samples and return the last num_samples
 
@@ -251,14 +263,30 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
         logger.debug(
             "Using requested sample rate of " + str(self.requested_sample_rate)
         )
-        calibration_args = [self.requested_sample_rate, self.frequency, self.gain]
-        self.recompute_calibration_data(calibration_args)
+        cal_params = []
+
+        if sensor_calibration is not None:
+            cal_params = sensor_calibration.calibration_parameters
+        try:
+            logger.debug(f"Using cal params: {cal_params}")
+            cal_args = []
+            if cal_params is not None:
+                for p in cal_params:
+                    cal_args.append(getattr(self, "requested_" + p))
+            else:
+                cal_args = None
+        except KeyError:
+            raise Exception(
+                "One or more required cal parameters is not a valid sigan setting."
+            )
+        logger.debug(f"Calibration arguments:{cal_args}")
+        self.recompute_sensor_calibration_data(cal_args)
         nsamps = int(num_samples)
         nskip = int(num_samples_skip)
 
         # Compute the linear gain
-        db_gain = self.sensor_calibration_data["gain_sensor"]
-        if gain_adjust:
+        db_gain = self.sensor_calibration_data["gain"]
+        if cal_adjust:
             linear_gain = 10 ** (db_gain / 20.0)
         else:
             linear_gain = 1
