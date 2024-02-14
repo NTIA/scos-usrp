@@ -4,7 +4,6 @@ from scos_actions.actions.monitor_sigan import MonitorSignalAnalyzer
 from scos_actions.actions.sync_gps import SyncGps
 from scos_actions.discover import init
 
-from scos_usrp.hardware import gps
 from scos_usrp.settings import CONFIG_DIR, SIGAN_MODULE, SIGAN_CLASS
 
 logger = logging.getLogger(__name__)
@@ -13,7 +12,7 @@ actions = {
     "monitor_usrp": MonitorSignalAnalyzer(
         parameters={"name": "monitor_usrp"}
     ),
-    "sync_gps": SyncGps(gps, {"name": "sync_gps"}),
+    "sync_gps": SyncGps({"name": "sync_gps"}),
 }
 test_actions = {}
 

@@ -2,7 +2,7 @@
 
 import pytest
 
-from scos_usrp.hardware import sigan
+from scos_usrp.hardware.usrp_sigan import USRPSignalAnalyzer
 
 
 class TestUSRP:
@@ -12,6 +12,7 @@ class TestUSRP:
     @pytest.fixture(autouse=True)
     def setup_mock_usrp(self):
         """Create the mock USRP"""
+        self.rx = USRPSignalAnalyzer()
 
         # Only setup once
         if self.setup_complete:
@@ -19,9 +20,8 @@ class TestUSRP:
 
         # Create the SignalAnalyzerInterface with the mock usrp_block and get the sigan
         # usrp_iface.connect()
-        if not sigan.is_available:
+        if not self.rx.is_available:
             raise RuntimeError("Receiver is not available.")
-        self.rx = sigan
 
         # Alert that the setup was complete
         self.setup_complete = True
@@ -41,7 +41,7 @@ class TestUSRP:
         self.rx.usrp.set_times_to_fail(times_to_fail)
 
         try:
-            self.rx.acquire_time_domain_samples(1000, retries=max_retries)
+            self.rx.acquire_time_domain_samples(1000, retries=max_retries, cal_adjust=False)
         except RuntimeError:
             msg = "Acquisition failing {} times sequentially with {}\n"
             msg += "retries requested should NOT have raised an error."
@@ -66,7 +66,7 @@ class TestUSRP:
         msg += "retries requested SHOULD have raised an error."
         msg = msg.format(times_to_fail, max_retries)
         with pytest.raises(RuntimeError):
-            self.rx.acquire_time_domain_samples(1000, 1000, max_retries)
+            self.rx.acquire_time_domain_samples(1000, 1000, max_retries, cal_adjust=False)
             pytest.fail(msg)
 
         self.rx.usrp.set_times_to_fail(0)

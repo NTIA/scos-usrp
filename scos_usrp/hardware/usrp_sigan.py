@@ -12,10 +12,12 @@ Example usage:
 """
 
 import logging
+from typing import Dict, Optional
 
 import numpy as np
+from its_preselector.web_relay import WebRelay
 from scos_actions import utils
-from scos_actions.calibration import sensor_calibration, sigan_calibration
+from scos_actions.calibration.calibration import Calibration
 from scos_actions.hardware.sigan_iface import SignalAnalyzerInterface
 
 from scos_usrp import __version__ as SCOS_USRP_VERSION
@@ -49,8 +51,8 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
         0.01  # Ratio of samples above the ADC full range to trigger overload
     )
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, sensor_cal: Calibration = None, sigan_cal: Calibration = None, switches: Optional[Dict[str, WebRelay]] =None):
+        super().__init__(sensor_cal, sigan_cal, switches)
         self._plugin_version = SCOS_USRP_VERSION
         self.uhd = None
         self.usrp = None
@@ -64,6 +66,8 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
         self.requested_frequency = 0
         self.requested_gain = 0
         self.requested_clock_rate = 0
+        self.sensor_calibration_data = None
+        self.sigan_calibration_data = None
         self.connect()
 
     def connect(self):
@@ -133,8 +137,8 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
         fs_MSps = self.sample_rate / 1e6
         logger.debug("set USRP sample rate: {:.2f} MSps".format(fs_MSps))
         # Set the clock rate based on calibration
-        if sigan_calibration is not None:
-            clock_rate = sigan_calibration.get_clock_rate(rate)
+        if self.sensor_calibration is not None:
+            clock_rate = self.sensor_calibration.get_clock_rate(rate)
         else:
             clock_rate = self.sample_rate
             # Maximize clock rate while keeping it under 40e6
@@ -228,7 +232,7 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
         )  # Convert log(V^2) to dBm
         self._sensor_overload = False
         # explicitly check is not None since 1db compression could be 0
-        if self.sensor_calibration_data["1db_compression_point"] is not None:
+        if self.sensor_calibration_data and self.sensor_calibration_data["1db_compression_point"] is not None:
             self._sensor_overload = bool(
                 time_domain_avg_power
                 > self.sensor_calibration_data["1db_compression_point"]
@@ -265,31 +269,31 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
         )
         cal_params = []
 
-        if sensor_calibration is not None:
-            cal_params = sensor_calibration.calibration_parameters
-        try:
-            logger.debug(f"Using cal params: {cal_params}")
-            cal_args = []
-            if cal_params is not None:
-                for p in cal_params:
-                    cal_args.append(getattr(self, "requested_" + p))
-            else:
-                cal_args = None
-        except KeyError:
-            raise Exception(
-                "One or more required cal parameters is not a valid sigan setting."
-            )
-        logger.debug(f"Calibration arguments:{cal_args}")
-        self.recompute_sensor_calibration_data(cal_args)
-        nsamps = int(num_samples)
-        nskip = int(num_samples_skip)
-
-        # Compute the linear gain
-        db_gain = self.sensor_calibration_data["gain"]
         if cal_adjust:
+            if not (settings.RUNNING_TESTS or settings.MOCK_SIGAN):
+                cal_params = self.sensor_calibration.calibration_parameters
+            try:
+                logger.debug(f"Using cal params: {cal_params}")
+                cal_args = []
+                if cal_params is not None:
+                    for p in cal_params:
+                        cal_args.append(getattr(self, "requested_" + p))
+                else:
+                    cal_args = None
+            except KeyError:
+                raise Exception(
+                    "One or more required cal parameters is not a valid sigan setting."
+                )
+            logger.debug(f"Calibration arguments:{cal_args}")
+            self.recompute_sensor_calibration_data(cal_args)
+            # Compute the linear gain
+            db_gain = self.sensor_calibration_data["gain"]
             linear_gain = 10 ** (db_gain / 20.0)
         else:
             linear_gain = 1
+        nsamps = int(num_samples)
+        nskip = int(num_samples_skip)
+        
         # Try to acquire the samples
         max_retries = retries
         while True:
