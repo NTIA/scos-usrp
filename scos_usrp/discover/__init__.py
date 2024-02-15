@@ -17,7 +17,7 @@ actions = {
 test_actions = {}
 
 ACTION_DEFINITIONS_DIR = CONFIG_DIR / "actions"
-logger.debug("scos_usrp: ACTION_DEFINITIONS_DIR =  " + ACTION_DEFINITIONS_DIR)
+logger.debug("scos_usrp: ACTION_DEFINITIONS_DIR =  " + str(ACTION_DEFINITIONS_DIR))
 yaml_actions, yaml_test_actions = init(
     yaml_dir=ACTION_DEFINITIONS_DIR
 )
