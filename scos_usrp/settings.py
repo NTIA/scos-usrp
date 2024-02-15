@@ -1,15 +1,13 @@
 import logging
 import sys
-from os import path
+from pathlib import Path
 
-from django.conf import settings
 from environs import Env
 
 env = Env()
+CONFIG_DIR = Path(__file__).parent.resolve() / "configs"
 
-CONFIG_DIR = path.join(path.dirname(path.abspath(__file__)), "configs")
-
-__cmd = path.split(sys.argv[0])[-1]
+__cmd = Path(sys.argv[0]).name
 
 RUNNING_TESTS = "test" in __cmd
 MOCK_SIGAN = env.bool("MOCK_SIGAN", default=False) or RUNNING_TESTS
