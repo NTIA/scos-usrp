@@ -137,8 +137,8 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
         fs_MSps = self.sample_rate / 1e6
         logger.debug("set USRP sample rate: {:.2f} MSps".format(fs_MSps))
         # Set the clock rate based on calibration
-        if self.sensor_calibration is not None:
-            clock_rate = self.sensor_calibration.get_clock_rate(rate)
+        if self.sigan_calibration is not None:
+            clock_rate = self.sigan_calibration.get_clock_rate(rate)
         else:
             clock_rate = self.sample_rate
             # Maximize clock rate while keeping it under 40e6
@@ -222,7 +222,7 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
         msg = "set USRP gain: {:.1f} dB"
         logger.debug(msg.format(self.usrp.get_rx_gain()))
 
-    def check_sensor_overload(self, data):
+    def check_sensor_overload(self, data, cal_adjust=True):
         """Check for sensor overload in the measurement data."""
         measured_data = data.astype(np.complex64)
 
@@ -232,7 +232,7 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
         )  # Convert log(V^2) to dBm
         self._sensor_overload = False
         # explicitly check is not None since 1db compression could be 0
-        if self.sensor_calibration_data and self.sensor_calibration_data["1db_compression_point"] is not None:
+        if cal_adjust and self.sensor_calibration_data["1db_compression_point"] is not None:
             self._sensor_overload = bool(
                 time_domain_avg_power
                 > self.sensor_calibration_data["1db_compression_point"]
@@ -345,7 +345,7 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
 
                 # Scale the data back to RF power and return it
                 data /= linear_gain
-                self.check_sensor_overload(data)
+                self.check_sensor_overload(data, cal_adjust)
                 measurement_result = {
                     "data": data,
                     "overload": self.overload,
