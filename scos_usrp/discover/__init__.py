@@ -28,7 +28,6 @@ if (
     test_actions["test_monitor_usrp"] = MonitorSignalAnalyzer(
         parameters={"name": "monitor_usrp"}
     )
-    test_actions["test_sync_gps"] = SyncGps({"name": "sync_gps"})
     TEST_ACTION_DEFINITIONS_DIR = CONFIG_DIR / "test"
     logger.debug(
         f"scos-usrp: TEST_ACTION_DEFINITIONS_DIR = {TEST_ACTION_DEFINITIONS_DIR}"
