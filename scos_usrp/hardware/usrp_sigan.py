@@ -239,6 +239,7 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
         # explicitly check is not None since 1db compression could be 0
         if (
             cal_adjust
+            and "1db_compression_point" in self.sensor_calibration_data
             and self.sensor_calibration_data["1db_compression_point"] is not None
         ):
             self._sensor_overload = bool(
