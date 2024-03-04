@@ -33,12 +33,6 @@ VALID_GAINS = (0, 20, 40, 60)
 
 
 class USRPSignalAnalyzer(SignalAnalyzerInterface):
-    @property
-    def last_calibration_time(self):
-        """Returns the last calibration time from calibration data."""
-        return utils.convert_string_to_millisecond_iso_format(
-            sensor_calibration.calibration_datetime
-        )
 
     @property
     def overload(self):
