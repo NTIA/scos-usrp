@@ -21,6 +21,7 @@ from scos_actions.calibration.calibration import Calibration
 from scos_actions.hardware.sigan_iface import SignalAnalyzerInterface
 
 from scos_usrp import __version__ as SCOS_USRP_VERSION
+from scos_usrp import __package__ as SCOS_USRP_NAME
 from scos_usrp import settings
 from scos_usrp.hardware.mocks.usrp_block import MockUsrp
 
@@ -53,6 +54,7 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
     ):
         super().__init__(sensor_cal, sigan_cal, switches)
         self._plugin_version = SCOS_USRP_VERSION
+        self._plugin_name = SCOS_USRP_NAME
         self.uhd = None
         self.usrp = None
         self._is_available = False
@@ -113,6 +115,11 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
     def plugin_version(self):
         """Returns the current version of scos-usrp."""
         return self._plugin_version
+    
+    @property
+    def plugin_name(self) -> str:
+        """Returns the current package name of scos-usrp."""
+        return self._plugin_name
 
     @property
     def is_available(self):
