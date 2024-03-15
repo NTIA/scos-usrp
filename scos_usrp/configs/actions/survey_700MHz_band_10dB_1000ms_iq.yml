@@ -16,4 +16,4 @@ stepped_frequency_time_domain_iq:
   duration_ms: 1000
   nskip: 15.36e4
   classification: UNCLASSIFIED
-  calibration_adjust: true
+  calibration_adjust: True

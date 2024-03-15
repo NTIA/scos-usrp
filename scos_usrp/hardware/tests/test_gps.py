@@ -3,7 +3,8 @@ from unittest.mock import MagicMock, patch
 
 from pytest import approx
 
-from scos_usrp.hardware import USRPLocation, USRPSignalAnalyzer
+from scos_usrp.hardware.gps_iface import USRPLocation
+from scos_usrp.hardware.usrp_sigan import USRPSignalAnalyzer
 
 
 class TestGPS:
