@@ -10,7 +10,7 @@ from scos_actions.hardware.sensor import Sensor
 logger = logging.getLogger(__name__)
 
 
-class USRPLocation(GPSInterface):
+class UsrpGps(GPSInterface):
     def get_location(self, sensor: Sensor, timeout_s: float = 1):
         """Use low-level UHD and USRP block methods to sync with GPS."""
 
