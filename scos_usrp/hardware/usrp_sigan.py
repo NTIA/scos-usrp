@@ -17,11 +17,10 @@ from typing import Dict, Optional
 import numpy as np
 from its_preselector.web_relay import WebRelay
 from scos_actions import utils
-from scos_actions.calibration.calibration import Calibration
 from scos_actions.hardware.sigan_iface import SignalAnalyzerInterface
 
-from scos_usrp import __version__ as SCOS_USRP_VERSION
 from scos_usrp import __package__ as SCOS_USRP_NAME
+from scos_usrp import __version__ as SCOS_USRP_VERSION
 from scos_usrp import settings
 from scos_usrp.hardware.mocks.usrp_block import MockUsrp
 
@@ -34,7 +33,6 @@ VALID_GAINS = (0, 20, 40, 60)
 
 
 class USRPSignalAnalyzer(SignalAnalyzerInterface):
-
     @property
     def overload(self):
         """Returns True if overload occurred, otherwise returns False."""
@@ -48,11 +46,9 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
 
     def __init__(
         self,
-        sensor_cal: Calibration = None,
-        sigan_cal: Calibration = None,
         switches: Optional[Dict[str, WebRelay]] = None,
     ):
-        super().__init__(sensor_cal, sigan_cal, switches)
+        super().__init__(switches)
         self._plugin_version = SCOS_USRP_VERSION
         self._plugin_name = SCOS_USRP_NAME
         self.uhd = None
@@ -115,7 +111,7 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
     def plugin_version(self):
         """Returns the current version of scos-usrp."""
         return self._plugin_version
-    
+
     @property
     def plugin_name(self) -> str:
         """Returns the current package name of scos-usrp."""
@@ -142,15 +138,11 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
         self.usrp.set_rx_rate(rate)
         fs_MSps = self.sample_rate / 1e6
         logger.debug("set USRP sample rate: {:.2f} MSps".format(fs_MSps))
-        # Set the clock rate based on calibration
-        if self.sigan_calibration is not None:
-            clock_rate = self.sigan_calibration.get_clock_rate(rate)
-        else:
-            clock_rate = self.sample_rate
-            # Maximize clock rate while keeping it under 40e6
-            while clock_rate <= 40e6:
-                clock_rate *= 2
-            clock_rate /= 2
+        clock_rate = self.sample_rate
+        # Maximize clock rate while keeping it under 40e6
+        while clock_rate <= 40e6:
+            clock_rate *= 2
+        clock_rate /= 2
         self.clock_rate = clock_rate
 
     @property

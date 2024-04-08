@@ -3,6 +3,7 @@ from unittest.mock import MagicMock, patch
 
 from pytest import approx
 
+from scos_actions.hardware.sensor import Sensor
 from scos_usrp.hardware.gps_iface import USRPLocation
 from scos_usrp.hardware.usrp_sigan import USRPSignalAnalyzer
 
@@ -33,8 +34,9 @@ class TestGPS:
         sigan.uhd = MagicMock()
         sigan.uhd.types = MagicMock()
         sigan.uhd.types.TimeSpec = MagicMock()
-        gps = USRPLocation(sigan)
-        latitude, longitude, height = gps.get_location()
+        gps = USRPLocation()
+        sensor = Sensor(sigan, {}, gps)
+        latitude, longitude, height = gps.get_location(sensor)
         assert latitude == approx(39.99511463)
         assert longitude == approx(-105.26158690)
         assert height == approx(10.0)
@@ -66,6 +68,7 @@ class TestGPS:
         sigan.uhd = MagicMock()
         sigan.uhd.types = MagicMock()
         sigan.uhd.types.TimeSpec = MagicMock()
-        gps = USRPLocation(sigan)
-        ret = gps.get_location()
+        gps = USRPLocation()
+        sensor = Sensor(sigan, {}, gps)
+        ret = gps.get_location(sensor)
         assert ret == None

@@ -1,27 +1,23 @@
 """Provides an interface to the on-board GPS."""
 
 import logging
-import subprocess
 from datetime import datetime
 from time import sleep, time
 
 from scos_actions.hardware.gps_iface import GPSInterface
+from scos_actions.hardware.sensor import Sensor
 
 logger = logging.getLogger(__name__)
 
 
 class USRPLocation(GPSInterface):
-    def __init__(self, sigan):
-        self.sigan = sigan
-
-    def get_location(self, timeout_s=1):
+    def get_location(self, sensor: Sensor, timeout_s: float = 1):
         """Use low-level UHD and USRP block methods to sync with GPS."""
 
-        if not self.sigan.is_available:
+        if not sensor.signal_analyzer.is_available:
             return None
 
-        uhd = self.sigan.uhd
-        usrp = self.sigan.usrp
+        usrp = sensor.signal_analyzer.usrp
 
         logger.debug("Waiting for GPS lock... ")
         start = time()
@@ -126,9 +122,9 @@ class USRPLocation(GPSInterface):
 
         return latitude_dd, longitude_dd, height
 
-    def get_gps_time(self):
-        uhd = self.sigan.uhd
-        usrp = self.sigan.usrp
+    def get_gps_time(self, sensor: Sensor):
+        uhd = sensor.signal_analyzer.uhd
+        usrp = sensor.signal_analyzer.usrp
 
         gps_t = uhd.types.TimeSpec(usrp.get_mboard_sensor("gps_time").to_int() + 1)
         usrp.set_time_next_pps(gps_t)

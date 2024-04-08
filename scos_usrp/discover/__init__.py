@@ -20,10 +20,12 @@ if (
     SIGAN_MODULE == "scos_usrp.hardware.usrp_sigan"
     and SIGAN_CLASS == "USRPSignalAnalyzer"
 ):
-    actions.update({
-        "monitor_usrp": MonitorSignalAnalyzer(parameters={"name": "monitor_usrp"}),
-        "sync_gps": SyncGps({"name": "sync_gps"}),
-    })
+    actions.update(
+        {
+            "monitor_usrp": MonitorSignalAnalyzer(parameters={"name": "monitor_usrp"}),
+            "sync_gps": SyncGps({"name": "sync_gps"}),
+        }
+    )
     yaml_actions, yaml_test_actions = init(yaml_dir=ACTION_DEFINITIONS_DIR)
     actions.update(yaml_actions)
     logger.debug("scos-usrp: loading test action configs")
