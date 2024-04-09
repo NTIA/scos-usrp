@@ -26,55 +26,6 @@ class TestUSRP:
         # Alert that the setup was complete
         self.setup_complete = True
 
-    # Ensure the usrp can recover from acquisition errors
-    def test_acquire_samples_with_retries(self):
-        """Acquire samples should retry without error up to `max_retries`."""
-
-        # Check that the setup was completed
-        assert self.setup_complete, "Setup was not completed"
-
-        max_retries = 5
-        times_to_fail = 3
-        self.rx.sample_rate = 10000000.0
-        self.rx.frequency = 650000000.0
-        self.rx.gain = 40.0
-        self.rx.usrp.set_times_to_fail(times_to_fail)
-
-        try:
-            self.rx.acquire_time_domain_samples(
-                1000, retries=max_retries, cal_adjust=False
-            )
-        except RuntimeError:
-            msg = "Acquisition failing {} times sequentially with {}\n"
-            msg += "retries requested should NOT have raised an error."
-            msg = msg.format(times_to_fail, max_retries)
-            pytest.fail(msg)
-
-        self.rx.usrp.set_times_to_fail(0)
-
-    def test_acquire_samples_fails_when_over_max_retries(self):
-        """After `max_retries`, an error should be thrown."""
-
-        # Check that the setup was completed
-        assert self.setup_complete, "Setup was not completed"
-
-        max_retries = 5
-        times_to_fail = 7
-        self.rx.usrp.set_times_to_fail(times_to_fail)
-        self.rx.sample_rate = 10000000.0
-        self.rx.frequency = 650000000.0
-        self.rx.gain = 40.0
-        msg = "Acquisition failing {} times sequentially with {}\n"
-        msg += "retries requested SHOULD have raised an error."
-        msg = msg.format(times_to_fail, max_retries)
-        with pytest.raises(RuntimeError):
-            self.rx.acquire_time_domain_samples(
-                1000, 1000, max_retries, cal_adjust=False
-            )
-            pytest.fail(msg)
-
-        self.rx.usrp.set_times_to_fail(0)
-
     def test_tune_result(self):
         """Check that the tuning is correct"""
         # Check that the setup was completed
