@@ -33,11 +33,6 @@ VALID_GAINS = (0, 20, 40, 60)
 
 
 class USRPSignalAnalyzer(SignalAnalyzerInterface):
-    @property
-    def overload(self):
-        """Returns True if overload occurred, otherwise returns False."""
-        return self._sigan_overload or self._sensor_overload
-
     # Define thresholds for determining ADC overload for the sigan
     ADC_FULL_RANGE_THRESHOLD = 0.98  # ADC scale -1<sample<1, magnitude threshold = 0.98
     ADC_OVERLOAD_THRESHOLD = (
@@ -56,8 +51,6 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
         self._is_available = False
         self.lo_freq = None
         self.dsp_freq = None
-        self._sigan_overload = False
-        self._sensor_overload = False
         self._capture_time = None
         self.requested_sample_rate = 0
         self.requested_frequency = 0
@@ -220,29 +213,7 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
         msg = "set USRP gain: {:.1f} dB"
         logger.debug(msg.format(self.usrp.get_rx_gain()))
 
-    def check_sensor_overload(self, data, cal_adjust=True):
-        """Check for sensor overload in the measurement data."""
-        measured_data = data.astype(np.complex64)
-
-        time_domain_avg_power = 10 * np.log10(np.mean(np.abs(measured_data) ** 2))
-        time_domain_avg_power += (
-            10 * np.log10(1 / (2 * 50)) + 30
-        )  # Convert log(V^2) to dBm
-        self._sensor_overload = False
-        # explicitly check is not None since 1db compression could be 0
-        if (
-            cal_adjust
-            and "1db_compression_point" in self.sensor_calibration_data
-            and self.sensor_calibration_data["1db_compression_point"] is not None
-        ):
-            self._sensor_overload = bool(
-                time_domain_avg_power
-                > self.sensor_calibration_data["1db_compression_point"]
-            )
-
-    def acquire_time_domain_samples(
-        self, num_samples, num_samples_skip=0, retries=5, cal_adjust: bool = True
-    ):
+    def acquire_time_domain_samples(self, num_samples: int, num_samples_skip: int = 0):
         """Acquire num_samples_skip+num_samples samples and return the last num_samples
 
         :type num_samples: int
@@ -250,9 +221,6 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
 
         :type num_samples_skip: int
         :param num_samples_skip: Skip samples to allow signal analyzer DC offset and IQ imbalance algorithms to take effect
-
-        :type retries: int
-        :param retries: The number of retries to attempt when failing to acquire samples
 
         :rtype: dictionary containing the following:
             data - (list) measurement data
@@ -263,41 +231,16 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
             capture_time - (string) Measurement capture time
             calibration_annotation - (dict) SigMF calibration annotation
         """
-        self._sigan_overload = False
+        sigan_overload = False
         self._capture_time = None
         # Get the calibration data for the acquisition
         logger.debug(
             "Using requested sample rate of " + str(self.requested_sample_rate)
         )
-        cal_params = []
-
-        if cal_adjust:
-            if not (settings.RUNNING_TESTS or settings.MOCK_SIGAN):
-                cal_params = self.sensor_calibration.calibration_parameters
-            try:
-                logger.debug(f"Using cal params: {cal_params}")
-                cal_args = []
-                if cal_params is not None:
-                    for p in cal_params:
-                        cal_args.append(getattr(self, "requested_" + p))
-                else:
-                    cal_args = None
-            except KeyError:
-                raise Exception(
-                    "One or more required cal parameters is not a valid sigan setting."
-                )
-            logger.debug(f"Calibration arguments:{cal_args}")
-            self.recompute_sensor_calibration_data(cal_args)
-            # Compute the linear gain
-            db_gain = self.sensor_calibration_data["gain"]
-            linear_gain = 10 ** (db_gain / 20.0)
-        else:
-            linear_gain = 1
         nsamps = int(num_samples)
         nskip = int(num_samples_skip)
 
         # Try to acquire the samples
-        max_retries = retries
         while True:
             # No need to skip initial samples when simulating the signal analyzer
             if not settings.RUNNING_TESTS and not settings.MOCK_SIGAN:
@@ -322,20 +265,14 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
                 data = data[nskip:]
 
             if not len(data) == num_samples:
-                if retries > 0:
-                    msg = "USRP error: requested {} samples, but got {}."
-                    logger.warning(msg.format(num_samples + num_samples_skip, data_len))
-                    logger.warning("Retrying {} more times.".format(retries))
-                    retries = retries - 1
-                else:
-                    err = "Failed to acquire correct number of samples "
-                    err += "{} times in a row.".format(max_retries)
-                    raise RuntimeError(err)
+                msg = f"USRP error: requested {num_samples + num_samples_skip} samples, but got {data_len}."
+                logger.error(msg)
+                raise RuntimeError(msg)
             else:
                 logger.debug("Successfully acquired {} samples.".format(num_samples))
 
                 # Check IQ values versus ADC max for sigan compression
-                self._sigan_overload = False
+                sigan_overload = False
                 i_samples = np.abs(np.real(data))
                 q_samples = np.abs(np.imag(data))
                 i_over_threshold = np.sum(i_samples > self.ADC_FULL_RANGE_THRESHOLD)
@@ -343,14 +280,12 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
                 total_over_threshold = i_over_threshold + q_over_threshold
                 ratio_over_threshold = float(total_over_threshold) / num_samples
                 if ratio_over_threshold > self.ADC_OVERLOAD_THRESHOLD:
-                    self._sigan_overload = True
+                    sigan_overload = True
+                    logger.warning("Signal Analyzer overload occurred!")
 
-                # Scale the data back to RF power and return it
-                data /= linear_gain
-                self.check_sensor_overload(data, cal_adjust)
                 measurement_result = {
                     "data": data,
-                    "overload": self.overload,
+                    "overload": sigan_overload,
                     "frequency": self.frequency,
                     "gain": self.gain,
                     "sample_rate": self.sample_rate,

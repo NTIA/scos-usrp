@@ -2,8 +2,8 @@ import logging
 from unittest.mock import MagicMock, patch
 
 from pytest import approx
-
 from scos_actions.hardware.sensor import Sensor
+
 from scos_usrp.hardware.usrp_gps import UsrpGps
 from scos_usrp.hardware.usrp_sigan import USRPSignalAnalyzer
 
