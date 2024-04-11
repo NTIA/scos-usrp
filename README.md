@@ -107,12 +107,20 @@ hatchling build
 
 ### Running Tests
 
-Since the UHD drivers are required, a docker container is used for testing. [Install
+Without the python3-uhd package installed, a docker container can be used for testing. [Install
 Docker](https://docs.docker.com/get-docker/).
 
 ```bash
 docker build -f docker/Dockerfile-test -t usrp_test .
 docker run usrp_test
+```
+
+With the python3-uhd package installed (`sudo apt install python3-uhd` on Ubuntu),
+pytest can be run directly when using a compatible version of Python
+(3.8 on Ubuntu 20.04):
+
+```bash
+pytest
 ```
 
 ### Committing
