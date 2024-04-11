@@ -204,10 +204,9 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
         :param gain: Gain in dB
         """
         if gain not in VALID_GAINS:
-            err = "Requested invalid gain {}. ".format(gain)
-            err += "Choose one of {!r}.".format(VALID_GAINS)
-            logger.error(err)
-            return
+            msg = "Requested invalid gain {}. ".format(gain)
+            msg += "It is recommended to choose one of {!r}.".format(VALID_GAINS)
+            logger.warning(msg)
         self.requested_gain = gain
         self.usrp.set_rx_gain(gain)
         msg = "set USRP gain: {:.1f} dB"
