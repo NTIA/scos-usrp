@@ -107,8 +107,8 @@ hatchling build
 
 ### Running Tests
 
-Without the python3-uhd package installed, a docker container can be used for testing. [Install
-Docker](https://docs.docker.com/get-docker/).
+Without the python3-uhd package installed, a docker container can be used for
+testing. [Install Docker](https://docs.docker.com/get-docker/).
 
 ```bash
 docker build -f docker/Dockerfile-test -t usrp_test .
