@@ -135,14 +135,17 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
         self.clock_rate = clock_rate
         logger.debug(f"Clock rate set to {self.clock_rate}")
         if self.clock_rate != clock_rate:
-            raise Exception(f"Clock rate {self.clock_rate} does not match requested rate {clock_rate}!")
+            raise Exception(
+                f"Clock rate {self.clock_rate} does not match requested rate {clock_rate}!"
+            )
         self.requested_sample_rate = rate
         self.usrp.set_rx_rate(rate)
         fs_MSps = self.sample_rate / 1e6
         logger.debug("set USRP sample rate: {:.2f} MSps".format(fs_MSps))
         if self.sample_rate != self.requested_sample_rate:
-            raise Exception(f"Sample rate {self.sample_rate} does not match requested rate {self.requested_sample_rate}!")
-
+            raise Exception(
+                f"Sample rate {self.sample_rate} does not match requested rate {self.requested_sample_rate}!"
+            )
 
     @property
     def clock_rate(self):
