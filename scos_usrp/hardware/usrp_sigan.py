@@ -127,16 +127,22 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
         :type sample_rate: float
         :param sample_rate: Sample rate in samples per second
         """
-        self.requested_sample_rate = rate
-        self.usrp.set_rx_rate(rate)
-        fs_MSps = self.sample_rate / 1e6
-        logger.debug("set USRP sample rate: {:.2f} MSps".format(fs_MSps))
-        clock_rate = self.sample_rate
+        clock_rate = rate
         # Maximize clock rate while keeping it under 40e6
         while clock_rate <= 40e6:
             clock_rate *= 2
         clock_rate /= 2
         self.clock_rate = clock_rate
+        logger.debug(f"Clock rate set to {self.clock_rate}")
+        if self.clock_rate != clock_rate:
+            raise Exception(f"Clock rate {self.clock_rate} does not match requested rate {clock_rate}!")
+        self.requested_sample_rate = rate
+        self.usrp.set_rx_rate(rate)
+        fs_MSps = self.sample_rate / 1e6
+        logger.debug("set USRP sample rate: {:.2f} MSps".format(fs_MSps))
+        if self.sample_rate != self.requested_sample_rate:
+            raise Exception(f"Sample rate {self.sample_rate} does not match requested rate {self.requested_sample_rate}!")
+
 
     @property
     def clock_rate(self):
