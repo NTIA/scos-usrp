@@ -133,7 +133,6 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
             clock_rate *= 2
         clock_rate /= 2
         self.clock_rate = clock_rate
-        logger.debug(f"Clock rate set to {self.clock_rate}")
         if round(self.clock_rate, 1) != round(clock_rate, 1):
             raise Exception(
                 f"Clock rate {self.clock_rate} does not match requested rate {clock_rate}!"
