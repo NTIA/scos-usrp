@@ -56,8 +56,6 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
         self.requested_frequency = 0
         self.requested_gain = 0
         self.requested_clock_rate = 0
-        self.sensor_calibration_data = None
-        self.sigan_calibration_data = None
         self.connect()
 
     def connect(self):
