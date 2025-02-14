@@ -40,10 +40,10 @@ classifiers = [
 ]
 
 dependencies = [
-    "django>=3.2.15,<4.0",
+    "django>=4.2.17, <5.0",
     "environs>=9.0, <10.0",
     "numpy>=1.22.0",
-    "scos_actions @ git+https://github.com/NTIA/scos-actions@10.0.1",
+    "scos_actions @ git+https://github.com/NTIA/scos-actions@11.1.0",
 ]
 
 [project.optional-dependencies]
