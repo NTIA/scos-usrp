@@ -117,7 +117,7 @@ docker run usrp_test
 
 With the python3-uhd package installed (`sudo apt install python3-uhd` on Ubuntu),
 pytest can be run directly when using a compatible version of Python
-(3.8 on Ubuntu 20.04):
+(3.10 on Ubuntu 22.04):
 
 ```bash
 pytest
@@ -170,4 +170,5 @@ See [LICENSE](LICENSE.md).
 
 ## Contact
 
-For technical questions about scos-usrp, contact Justin Haze, <jhaze@ntia.gov>
+For technical questions about scos-usrp, contact the
+[ITS Spectrum Monitoring Team](mailto:spectrummonitoring@ntia.gov)
