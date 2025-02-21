@@ -12,6 +12,7 @@ Example usage:
 """
 
 import logging
+import subprocess
 from typing import Dict, Optional
 
 import numpy as np
@@ -46,6 +47,9 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
         super().__init__(switches)
         self._plugin_version = SCOS_USRP_VERSION
         self._plugin_name = SCOS_USRP_NAME
+        self._model = "Unknown"
+        self._api_version = "Unknown"
+        self._firmware_version = "Unknown"
         self.uhd = None
         self.usrp = None
         self._is_available = False
@@ -90,13 +94,32 @@ class USRPSignalAnalyzer(SignalAnalyzerInterface):
 
             logger.debug("Using the following USRP:")
             logger.debug(self.usrp.get_pp_string())
-
+            self._model = self.usrp.get_mboard_name()
             try:
                 self._is_available = True
                 return True
             except Exception as err:
                 logger.exception(err)
                 return False
+            
+    @property
+    def firmware_version(self) -> str:
+        """Returns the version of the signal analyzer firmware."""
+        # firmware version
+        # based on https://github.com/EttusResearch/uhd/blob/master/host/utils/uhd_usrp_probe.cpp
+        tree = self.usrp.get_tree()
+        addr = tree.list("/mboards")[0]
+        path = f"/mboards/{addr}"
+        return tree.access_str(path + "/fw_version").get()
+
+    @property
+    def api_version(self) -> str:
+        """Returns the version of the underlying signal analyzer API."""
+        raw_version = subprocess.run(["dpkg", "-s", "python3-uhd"], capture_output=True, text=True).stdout
+        new_line_split = raw_version.split("\n")
+        for line in new_line_split:
+            if line.startswith("Version"):
+                return line.split(":")[1].strip()
 
     @property
     def plugin_version(self):
