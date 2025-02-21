@@ -1,10 +1,10 @@
 single_frequency_fft:
-  name: acquire_m4s_700MHz_FirstNet_DL
-  frequency: 763e6
+  name: acquire_m4s_700MHz_P-SafetyNB_DL_no_cal
+  frequency: 772e6
   gain: 40
   sample_rate: 15.36e6
   fft_size: 1024
   nffts: 300
   nskip: 15.36e4
   classification: UNCLASSIFIED
-  calibration_adjust: true
+  calibration_adjust: False

@@ -107,12 +107,20 @@ hatchling build
 
 ### Running Tests
 
-Since the UHD drivers are required, a docker container is used for testing. [Install
-Docker](https://docs.docker.com/get-docker/).
+Without the python3-uhd package installed, a docker container can be used for
+testing. [Install Docker](https://docs.docker.com/get-docker/).
 
 ```bash
 docker build -f docker/Dockerfile-test -t usrp_test .
 docker run usrp_test
+```
+
+With the python3-uhd package installed (`sudo apt install python3-uhd` on Ubuntu),
+pytest can be run directly when using a compatible version of Python
+(3.10 on Ubuntu 22.04):
+
+```bash
+pytest
 ```
 
 ### Committing
@@ -162,4 +170,5 @@ See [LICENSE](LICENSE.md).
 
 ## Contact
 
-For technical questions about scos-usrp, contact Justin Haze, <jhaze@ntia.gov>
+For technical questions about scos-usrp, contact the
+[ITS Spectrum Monitoring Team](mailto:spectrummonitoring@ntia.gov)

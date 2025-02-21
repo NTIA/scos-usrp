@@ -1,5 +1,5 @@
 stepped_frequency_time_domain_iq:
-  name: survey_700MHz_band_40dB_1000ms_iq
+  name: survey_700MHz_band_20dB_1000ms_iq_no_cal
   frequency:
     - 700.5e6
     - 709e6
@@ -11,9 +11,9 @@ stepped_frequency_time_domain_iq:
     - 782e6
     - 793e6
     - 802e6
-  gain: 40
+  gain: 20
   sample_rate: 15.36e6
   duration_ms: 1000
   nskip: 15.36e4
   classification: UNCLASSIFIED
-  calibration_adjust: true
+  calibration_adjust: False

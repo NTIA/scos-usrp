@@ -71,3 +71,6 @@ class MockUsrp:
 
     def get_rx_gain(self):
         return self.gain
+
+    def get_pp_string(self) -> str:
+        return "Mock USRP"

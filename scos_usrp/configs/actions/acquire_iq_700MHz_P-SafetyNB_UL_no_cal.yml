@@ -1,9 +1,9 @@
 single_frequency_time_domain_iq:
-  name: acquire_iq_700MHz_P-SafetyNB_UL
+  name: acquire_iq_700MHz_P-SafetyNB_UL_no_cal
   frequency: 802e6
   gain: 40
   sample_rate: 15.36e6
   duration_ms: 10000
   nskip: 15.36e4
   classification: UNCLASSIFIED
-  calibration_adjust: true
+  calibration_adjust: False
